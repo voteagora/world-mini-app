@@ -28,6 +28,19 @@ export const proposals: ProposalData[] = [
                 name: "@messiah",
                 support: "Abstain",
 			},
+			{
+				name: "@joseph",
+				support: "For",
+			},
+			{
+				name: "@johndoe",
+				support: "Against",
+			},
+			{
+				name: "@john",
+				support: "Against",
+			},
+			
 		],
 	},
 	{
@@ -111,32 +124,38 @@ Velit eiusmod irure excepteur duis exercitation non quis. Consectetur voluptate 
 			proposalId: "proposal-13",
 			proposalName: "Upgrade Proposal #13: OPCM and Incident Response improvements",
 			support: "For",
+			date: "11.04.2025",
 		},
 		{
 			proposalId: "l1-pectra",
 			proposalName: "Maintenance Upgrade: L1 Pectra Readiness",
 			support: "Against",
+			date: "11.04.2025",
 		},
 		{
 			proposalId: "security-council-b",
 			proposalName: "Security Council Elections Cohort B Members",
 			support: "For",
 			params: ["L2beat", "Others"],
+			date: "11.04.2025",
 		},
 		{
 			proposalId: "season-7",
 			proposalName: "Season 7: Chain Delegation Program Amendment",
 			support: "For",
+			date: "11.04.2025",
 		},
 		{
 			proposalId: "l1-pectra",
 			proposalName: "Security Council Elections Cohort B Members",
 			support: "Against",
+			date: "11.04.2025",
 		},
 		{
 			proposalId: "l1-pectra",
 			proposalName: "Security Council Elections Cohort B Members",
 			support: "Against",
+			date: "11.04.2025",
 		},
 	],
 };
