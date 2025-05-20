@@ -1,7 +1,6 @@
 import { proposals } from "@/utils/constants";
 import { Progress, Typography } from "@worldcoin/mini-apps-ui-kit-react";
 import Link from "next/link";
-import { twMerge } from "tailwind-merge";
 
 interface ParticipationItemProps {
   proposalName: string;
@@ -9,6 +8,7 @@ interface ParticipationItemProps {
   support: string;
   params?: string[];
   date: string;
+  isFirst: boolean;
 }
 
 export function ParticipationItem({
@@ -17,6 +17,7 @@ export function ParticipationItem({
   support,
   params,
   date,
+  isFirst,
 }: ParticipationItemProps) {
   const proposal = proposals.find((p) => p.id === proposalId);
   const percentage =
@@ -30,7 +31,9 @@ export function ParticipationItem({
   return (
     <Link
       href={`/proposals/${proposalId}`}
-      className="flex items-center justify-between gap-4"
+      className={`flex items-center justify-between gap-4 ${
+        !isFirst ? "border-t border-gray-800 pt-4" : ""
+      }`}
     >
       <div className="flex flex-col gap-2">
         <div className="flex flex-col flex-1">

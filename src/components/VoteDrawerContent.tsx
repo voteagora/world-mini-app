@@ -162,7 +162,7 @@ export function VoteDrawerContent({
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               maxLength={80}
-              // @ts-ignore
+              // @ts-expect-error - Types are wrong for TextArea
               placeholder="Type here"
             />
             <Typography

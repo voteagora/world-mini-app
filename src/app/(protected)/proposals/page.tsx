@@ -22,7 +22,7 @@ export default async function Proposals() {
                 </div>
               }
               title="Votes"
-              items={votes.map((vote) => (
+              items={votes.map((vote, index) => (
                 <ParticipationItem
                   key={vote.proposalId}
                   proposalId={vote.proposalId}
@@ -30,6 +30,7 @@ export default async function Proposals() {
                   support={vote.support}
                   date={vote.date}
                   params={vote.params}
+                  isFirst={index === 0}
                 />
               ))}
               emptyComponent={

@@ -36,7 +36,7 @@ export function SeeAllDrawer({
           </DrawerHeader>
         </Page.Header>
         <Page.Main className="flex flex-col justify-between pt-0 mb-4">
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-8">
             {items.length ? (
               items
             ) : emptyComponent ? (
