@@ -9,6 +9,7 @@ import {
 } from "@worldcoin/mini-apps-ui-kit-react";
 import { twMerge } from "tailwind-merge";
 import { Page } from "@/components/PageLayout";
+import MarkdownPreview from "@uiw/react-markdown-preview";
 
 interface TruncatedTextProps {
   text: string;
@@ -18,14 +19,20 @@ interface TruncatedTextProps {
 export function TruncatedText({ text, className }: TruncatedTextProps) {
   return (
     <div className="flex flex-col gap-2">
-      <Typography
-        variant="body"
-        level={2}
-        color="default"
-        className={twMerge("text-gray-500 line-clamp-5", className)}
-      >
-        {text}
-      </Typography>
+      <div className={twMerge("text-gray-500 line-clamp-5", className)}>
+        <MarkdownPreview
+          source={text}
+          style={{
+            backgroundColor: "transparent",
+            color: "inherit",
+            fontSize: "inherit",
+            lineHeight: "inherit",
+          }}
+          wrapperElement={{
+            "data-color-mode": "light",
+          }}
+        />
+      </div>
       <Drawer>
         <DrawerTrigger asChild>
           <button type="button" className="flex">
@@ -44,14 +51,20 @@ export function TruncatedText({ text, className }: TruncatedTextProps) {
             <DrawerHeader />
           </Page.Header>
           <Page.Main className="flex flex-col gap-4 pt-0">
-            <Typography
-              variant="body"
-              level={2}
-              color="default"
-              className="text-gray-500 whitespace-pre-wrap"
-            >
-              {text}
-            </Typography>
+            <div className="text-gray-500">
+              <MarkdownPreview
+                source={text}
+                style={{
+                  backgroundColor: "transparent",
+                  color: "inherit",
+                  fontSize: "inherit",
+                  lineHeight: "inherit",
+                }}
+                wrapperElement={{
+                  "data-color-mode": "light",
+                }}
+              />
+            </div>
           </Page.Main>
         </DrawerContent>
       </Drawer>

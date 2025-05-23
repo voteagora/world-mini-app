@@ -10,13 +10,14 @@ import {
   DrawerContent,
   DrawerHeader,
 } from "@worldcoin/mini-apps-ui-kit-react";
-import { ArrowLeft, CheckCircleSolid } from "iconoir-react";
+import { CheckCircleSolid } from "iconoir-react";
 import Link from "next/link";
 import { TruncatedText } from "@/components/TruncatedText";
 import { SeeAllDrawer } from "@/components/SeeAllDrawer";
 import { UserVoteItem } from "@/components/UserVoteItem";
 import { notFound } from "next/navigation";
 import { VoteDrawerContent } from "@/components/VoteDrawerContent";
+import { ArrowLeftIcon } from "@/components/icons/ArrowLeft";
 
 export default async function ProposalPage({
   params,
@@ -39,7 +40,7 @@ export default async function ProposalPage({
           startAdornment={
             <Link href="/proposals">
               <div className="flex items-center justify-center rounded-full p-2 bg-gray-200 w-10 h-10">
-                <ArrowLeft className="text-gray-900" />
+                <ArrowLeftIcon className="text-gray-900" />
               </div>
             </Link>
           }

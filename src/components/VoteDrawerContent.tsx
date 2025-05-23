@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Confetti from "react-confetti";
 import {
   Typography,
   Button,
@@ -29,7 +30,7 @@ export function VoteDrawerContent({
 
   const handleSubmitVote = async () => {
     console.log("Submitting vote with reason:", reason);
-    const mockSuccess = Math.random() > 0.5;
+    const mockSuccess = true;
     if (mockSuccess) {
       setVoteState("success");
     } else {
@@ -39,27 +40,30 @@ export function VoteDrawerContent({
 
   if (voteState === "success") {
     return (
-      <div className="flex flex-col gap-2 items-center justify-center h-full pt-0 mt-0">
-        <CircularIcon size="xl" className="bg-green-600 mb-6">
-          <Check className="text-white" />
-        </CircularIcon>
-        <Typography
-          variant="heading"
-          level={1}
-          color="default"
-          className="text-gray-900 font-semibold"
-        >
-          Voted successfully
-        </Typography>
-        <Typography
-          variant="body"
-          level={2}
-          color="default"
-          className="text-gray-500"
-        >
-          Your vote has been submitted successfully.
-        </Typography>
-      </div>
+      <>
+        <Confetti />
+        <div className="flex flex-col gap-2 items-center justify-center h-full pt-0 mt-0">
+          <CircularIcon size="xl" className="bg-green-600 mb-6">
+            <Check className="text-white" />
+          </CircularIcon>
+          <Typography
+            variant="heading"
+            level={1}
+            color="default"
+            className="text-gray-900 font-semibold"
+          >
+            Voted successfully
+          </Typography>
+          <Typography
+            variant="body"
+            level={2}
+            color="default"
+            className="text-gray-500"
+          >
+            Your vote has been submitted successfully.
+          </Typography>
+        </div>
+      </>
     );
   }
 

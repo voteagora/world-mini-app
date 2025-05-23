@@ -1,6 +1,7 @@
+import { ArrowLeftIcon } from "@/components/icons/ArrowLeft";
 import { Page } from "@/components/PageLayout";
 import { Typography, TopBar, Button } from "@worldcoin/mini-apps-ui-kit-react";
-import { ArrowLeft, InfoCircle } from "iconoir-react";
+import { InfoCircle } from "iconoir-react";
 import Link from "next/link";
 
 export default function NotFound() {
@@ -11,7 +12,7 @@ export default function NotFound() {
           startAdornment={
             <Link href="/proposals">
               <div className="flex items-center justify-center rounded-full p-2 bg-gray-200 w-10 h-10">
-                <ArrowLeft className="text-gray-900" />
+                <ArrowLeftIcon className="text-gray-900" />
               </div>
             </Link>
           }
