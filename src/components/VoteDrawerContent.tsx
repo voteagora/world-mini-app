@@ -403,10 +403,14 @@ export function VoteDrawerContent({
 
 export const VoteDrawerContentWrapper = ({
   proposal,
+  hasVoted = false,
 }: {
   proposal: ProposalData;
+  hasVoted?: boolean;
 }) => {
-  const [voteState, setVoteState] = useState<string | null>(null);
+  const [voteState, setVoteState] = useState<string | null>(
+    hasVoted ? "success" : null
+  );
   return (
     <Drawer>
       <DrawerTrigger

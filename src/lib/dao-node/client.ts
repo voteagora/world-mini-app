@@ -43,7 +43,9 @@ const transformProposalToProposalData = async (
     votes.against = allVotes["0"] || { amount: "0", percentage: "0%" };
     votes.abstain = allVotes["2"] || { amount: "0", percentage: "0%" };
   } else if (proposalType === "approval") {
-    const options = JSON.parse(proposal.decoded_proposal_data[0]);
+    const options = proposal.decoded_proposal_data[0]?.map((option: string) => [
+      option?.replace(/^\[|\]$/g, ""),
+    ]);
 
     Object.entries(allVotes).forEach(([key, value]) => {
       if (isNaN(parseInt(key))) {
@@ -83,13 +85,13 @@ const transformProposalToProposalData = async (
 
   const options =
     proposalType === "approval"
-      ? JSON.parse(proposal.decoded_proposal_data[0])
+      ? proposal.decoded_proposal_data[0]?.map((option: string) => [
+          option?.replace(/^\[|\]$/g, ""),
+        ])
       : [];
 
   const settings =
-    proposalType === "approval"
-      ? JSON.parse(proposal.decoded_proposal_data[1])
-      : null;
+    proposalType === "approval" ? proposal.decoded_proposal_data[1] : null;
   const maxApprovals = settings?.[1] || 1;
 
   const description = getDescriptionFromProposalDescriptionWithoutTitle(

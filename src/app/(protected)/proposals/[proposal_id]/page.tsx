@@ -13,7 +13,11 @@ import { UserVoteItem } from "@/components/UserVoteItem";
 import { notFound } from "next/navigation";
 import { VoteDrawerContentWrapper } from "@/components/VoteDrawerContent";
 import { ArrowLeftIcon } from "@/components/icons/ArrowLeft";
-import { getProposalFromDaoNode } from "@/lib/dao-node/client";
+import {
+  getProposalFromDaoNode,
+  getVotesForDelegateFromDaoNode,
+} from "@/lib/dao-node/client";
+import { auth } from "@/auth";
 
 export default async function ProposalPage({
   params,
@@ -22,6 +26,10 @@ export default async function ProposalPage({
 }) {
   const { proposal_id } = await params;
   const proposal = await getProposalFromDaoNode(proposal_id);
+  const session = await auth();
+  const delegate = await getVotesForDelegateFromDaoNode(
+    session?.user.walletAddress
+  );
   if (!proposal) {
     notFound();
   }
@@ -290,7 +298,12 @@ export default async function ProposalPage({
         </div>
 
         {proposal.status === "active" ? (
-          <VoteDrawerContentWrapper proposal={proposal} />
+          <VoteDrawerContentWrapper
+            proposal={proposal}
+            hasVoted={delegate?.voter_history?.some(
+              (vote) => vote.proposalId === proposal_id
+            )}
+          />
         ) : (
           <Button className="w-full py-2" variant="primary" size="lg" disabled>
             Not open to voting

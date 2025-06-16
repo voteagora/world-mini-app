@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export interface ProposalData {
   id: string;
   type: "standard" | "approval";
@@ -59,7 +60,7 @@ export interface Proposal {
   id: string;
   voting_module_name: string;
   totals: VoteTotals;
-  decoded_proposal_data: string[];
+  decoded_proposal_data: any[];
 }
 
 export interface VoteHistoryItem {
