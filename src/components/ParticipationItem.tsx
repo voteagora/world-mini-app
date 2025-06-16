@@ -1,4 +1,3 @@
-import { proposals } from "@/utils/constants";
 import { Progress, Typography } from "@worldcoin/mini-apps-ui-kit-react";
 import Link from "next/link";
 
@@ -8,6 +7,7 @@ interface ParticipationItemProps {
   support: string;
   params?: string[];
   date: string;
+  percentage: string;
   isFirst: boolean;
 }
 
@@ -17,17 +17,9 @@ export function ParticipationItem({
   support,
   params,
   date,
+  percentage,
   isFirst,
 }: ParticipationItemProps) {
-  const proposal = proposals.find((p) => p.id === proposalId);
-  const percentage =
-    proposal?.type === "approval"
-      ? proposal?.votes[params?.[0] as keyof typeof proposal.votes]?.percentage
-      : support === "For"
-      ? proposal?.votes.for.percentage
-      : support === "Against"
-      ? proposal?.votes.against.percentage
-      : proposal?.votes.abstain.percentage;
   return (
     <Link
       href={`/proposals/${proposalId}`}
@@ -67,7 +59,7 @@ export function ParticipationItem({
             </Typography>
           </div>
           <Progress
-            value={Number.parseFloat(percentage ?? "0")}
+            value={Number.parseFloat(percentage.replace("%", "") ?? "0")}
             max={100}
             className="h-1.5 text-green-600 bg-gray-50"
           />

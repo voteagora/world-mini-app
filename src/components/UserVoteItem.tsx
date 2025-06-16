@@ -1,22 +1,34 @@
 import { Marble, Typography } from "@worldcoin/mini-apps-ui-kit-react";
+import { MiniKit } from "@worldcoin/minikit-js";
 import Link from "next/link";
 import { twMerge } from "tailwind-merge";
+import { useInView } from "react-intersection-observer";
+import { useQuery } from "@tanstack/react-query";
 
 interface UserVoteItemProps {
-  name: string;
+  address: string;
   support: string;
   params?: string[];
   proposalType: string;
 }
 
 export function UserVoteItem({
-  name,
+  address,
   support,
   params,
   proposalType,
 }: UserVoteItemProps) {
+  const { ref, inView } = useInView({
+    triggerOnce: true,
+    threshold: 0.1,
+  });
+  const { data: user } = useQuery({
+    queryKey: ["user", address],
+    queryFn: () => MiniKit.getUserByAddress(address),
+    enabled: inView,
+  });
   return (
-    <Link href={`/delegate`}>
+    <Link ref={ref} href={`/delegate/${user?.username ?? address}`}>
       <div className="flex items-center gap-2">
         <Marble
           className="w-12 h-12 rounded-full flex-shrink-0"
@@ -29,7 +41,7 @@ export function UserVoteItem({
             color="default"
             className="text-gray-900 font-medium"
           >
-            {name}
+            {user?.username}
           </Typography>
         </div>
         <Typography

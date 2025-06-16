@@ -1,4 +1,3 @@
-import { proposals } from "@/utils/constants";
 import type { ProposalData } from "@/utils/types";
 import {
   Typography,
@@ -10,12 +9,7 @@ import Link from "next/link";
 import { EmptyComponent } from "./EmptyComponent";
 
 const ProposalCard = ({ proposal }: { proposal: ProposalData }) => {
-  const proposalType =
-    proposal.type === "standard"
-      ? "Standard"
-      : proposal.type === "optimistic"
-      ? "Optimistic"
-      : "Approval";
+  const proposalType = proposal.type === "standard" ? "Standard" : "Approval";
   const proposalStatus =
     proposal.status === "active"
       ? "Active"
@@ -100,84 +94,43 @@ const ProposalCard = ({ proposal }: { proposal: ProposalData }) => {
             </>
           )}
 
-          {proposalType === "Optimistic" && (
-            <div>
-              <Progress
-                value={Number.parseFloat(
-                  proposal.votes.against?.percentage ?? "0"
-                )}
-                max={100}
-                className="h-1.5 text-green-600 bg-gray-900"
-              />
-              {proposal.votes.against && (
-                <div className="flex flex-col gap-3 mt-3">
-                  <div className="flex justify-between text-sm">
-                    <div className="flex items-center gap-2">
-                      <CircularIcon className="size-2 bg-green-600" />
-                      <Typography variant="body" level={3}>
-                        Opposition
-                      </Typography>
-                    </div>
-                    <Typography variant="subtitle" level={3}>
-                      {proposal.votes.against.amount}{" "}
-                      <span className="text-gray-500">
-                        ({proposal.votes.against.percentage})
-                      </span>
-                    </Typography>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <div className="flex items-center gap-2">
-                      <CircularIcon className="size-2 bg-gray-900" />
-                      <Typography variant="body" level={3}>
-                        Block Threshold
-                      </Typography>
-                    </div>
-                    <Typography variant="subtitle" level={3}>
-                      {proposal.blockThreshold}
-                    </Typography>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
           {proposalType === "Approval" && (
             <div>
-              <Progress
-                value={Number.parseFloat(
-                  proposal.votes.L2beat?.percentage ?? "0"
-                )}
-                max={100}
-                className="h-1.5 text-green-600 bg-gray-900"
-              />
-              {proposal.votes.L2beat && (
-                <div className="flex flex-col gap-3 mt-3">
-                  <div className="flex justify-between text-sm">
-                    <div className="flex items-center gap-2">
-                      <CircularIcon className="size-2 bg-green-600" />
-                      <Typography variant="body" level={3}>
-                        L2BEAT
-                      </Typography>
-                    </div>
-                    <Typography variant="subtitle" level={3}>
-                      {proposal.votes.L2beat.amount}{" "}
-                      <span className="text-gray-500">
-                        ({proposal.votes.L2beat.percentage})
-                      </span>
-                    </Typography>
+              {proposal.options.length > 0 && (
+                <>
+                  <Progress
+                    value={Number.parseFloat(
+                      proposal.votes[proposal.options[0]]?.percentage ?? "0"
+                    )}
+                    max={100}
+                    className="h-1.5 text-green-600 bg-gray-900"
+                  />
+                  <div className="flex flex-col gap-3 mt-3">
+                    {proposal.options.slice(0, 2).map((option, index) => (
+                      <div
+                        key={option}
+                        className="flex justify-between text-sm"
+                      >
+                        <div className="flex items-center gap-2">
+                          <CircularIcon
+                            className={`size-2 ${
+                              index === 0 ? "bg-green-600" : "bg-gray-900"
+                            }`}
+                          />
+                          <Typography variant="body" level={3}>
+                            {option}
+                          </Typography>
+                        </div>
+                        <Typography variant="subtitle" level={3}>
+                          {proposal.votes[option]?.amount ?? "0"}{" "}
+                          <span className="text-gray-500">
+                            ({proposal.votes[option]?.percentage ?? "0%"})
+                          </span>
+                        </Typography>
+                      </div>
+                    ))}
                   </div>
-                  <div className="flex justify-between text-sm">
-                    <div className="flex items-center gap-2">
-                      <CircularIcon className="size-2 bg-gray-900" />
-                      <Typography variant="body" level={3}>
-                        Others
-                      </Typography>
-                    </div>
-                    <Typography variant="subtitle" level={3}>
-                      {proposal.votes.Others?.amount}
-                    </Typography>
-                  </div>
-                </div>
+                </>
               )}
             </div>
           )}
@@ -187,10 +140,15 @@ const ProposalCard = ({ proposal }: { proposal: ProposalData }) => {
   );
 };
 
-export const ProposalList = () => {
-  const activeProposals = proposals.filter((p) => p.status === "active");
+export const ProposalList = ({ proposals }: { proposals: ProposalData[] }) => {
+  const activeProposals = proposals.filter(
+    (p) => p.status === "active" || p.status === "pending"
+  );
   const pastProposals = proposals.filter(
-    (p) => p.status === "past" || p.status === "executed"
+    (p) =>
+      p.status === "succeeded" ||
+      p.status === "failed" ||
+      p.status === "executed"
   );
   const totalProposals = activeProposals.length + pastProposals.length;
 

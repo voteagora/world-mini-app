@@ -6,6 +6,9 @@ const nextConfig: NextConfig = {
   },
   allowedDevOrigins: ['world-agora.ngrok.dev'], // Add your dev origin here
   reactStrictMode: false,
+  experimental: {
+    useCache: true,
+  }
 };
 
 export default nextConfig;

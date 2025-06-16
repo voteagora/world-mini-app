@@ -4,6 +4,7 @@ import { Session } from "next-auth";
 import { SessionProvider } from "next-auth/react";
 import dynamic from "next/dynamic";
 import type { ReactNode } from "react";
+import { QueryClientProvider } from "./QueryClient/QueryClient";
 
 const ErudaProvider = dynamic(
   () => import("@/providers/Eruda").then((c) => c.ErudaProvider),
@@ -33,12 +34,14 @@ export default function ClientProviders({
   session,
 }: ClientProvidersProps) {
   return (
-    <ErudaProvider>
-      <MiniKitProvider
-        props={{ appId: "app_adf6164ec59ba08fe5f2aefb692a7da9" }}
-      >
-        <SessionProvider session={session}>{children}</SessionProvider>
-      </MiniKitProvider>
-    </ErudaProvider>
+    <QueryClientProvider>
+      <ErudaProvider>
+        <MiniKitProvider
+          props={{ appId: "app_adf6164ec59ba08fe5f2aefb692a7da9" }}
+        >
+          <SessionProvider session={session}>{children}</SessionProvider>
+        </MiniKitProvider>
+      </ErudaProvider>
+    </QueryClientProvider>
   );
 }

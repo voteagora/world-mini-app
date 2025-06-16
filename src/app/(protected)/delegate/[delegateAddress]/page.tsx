@@ -1,14 +1,26 @@
-import { auth } from "@/auth";
 import { ArrowLeftIcon } from "@/components/icons/ArrowLeft";
 import { Page } from "@/components/PageLayout";
 import { ParticipationItem } from "@/components/ParticipationItem";
 import { SeeAllDrawer } from "@/components/SeeAllDrawer";
-import { delegate } from "@/utils/constants";
+import { getVotesForDelegateFromDaoNode } from "@/lib/dao-node/client";
 import { Marble, TopBar, Typography } from "@worldcoin/mini-apps-ui-kit-react";
+import { MiniKit } from "@worldcoin/minikit-js";
 import Link from "next/link";
 
-export default async function Home() {
-  const session = await auth();
+export default async function Home({
+  params,
+}: {
+  params: Promise<{ delegateAddress: string }>;
+}) {
+  const { delegateAddress } = await params;
+  const isAddress = delegateAddress.startsWith("0x");
+  const user = isAddress
+    ? await MiniKit.getUserByAddress(delegateAddress)
+    : await MiniKit.getUserByUsername(delegateAddress);
+  const delegate = await getVotesForDelegateFromDaoNode(
+    isAddress ? delegateAddress : user?.walletAddress
+  );
+  const votes = delegate?.voter_history;
 
   return (
     <>
@@ -27,7 +39,7 @@ export default async function Home() {
       <Page.Main className="flex flex-col items-start justify-start gap-4 mb-16">
         <Marble
           src={
-            session?.user.profilePictureUrl ??
+            user?.profilePictureUrl ??
             "https://mini-apps-ui-kit.vercel.app/assets/marble1-CnGkEX-1.png"
           }
           className="w-24"
@@ -38,9 +50,8 @@ export default async function Home() {
           color="default"
           className="text-gray-900 font-semibold mb-4"
         >
-          @angelina
+          {user?.username}
         </Typography>
-        {/* <TruncatedText text={delegate.statement} /> */}
         <div className="mt-4 w-full">
           <div className="flex justify-between items-center mb-2">
             <Typography
@@ -51,7 +62,7 @@ export default async function Home() {
             >
               Votes
             </Typography>
-            {(delegate.participation?.length ?? 0) > 5 && (
+            {(votes?.length ?? 0) > 5 && (
               <SeeAllDrawer
                 trigger={
                   <button type="button">
@@ -67,14 +78,15 @@ export default async function Home() {
                 }
                 title="Votes"
                 items={
-                  delegate.participation?.map((participation, index) => (
+                  votes?.map((vote, index: number) => (
                     <ParticipationItem
-                      key={participation.proposalId}
-                      proposalName={participation.proposalName}
-                      support={participation.support}
-                      params={participation.params}
-                      proposalId={participation.proposalId}
-                      date={participation.date}
+                      key={vote.proposalId}
+                      proposalName={vote.proposalName}
+                      support={vote.support}
+                      params={vote.params}
+                      proposalId={vote.proposalId}
+                      date={vote.date}
+                      percentage={vote.percentage}
                       isFirst={index === 0}
                     />
                   )) ?? []
@@ -84,17 +96,18 @@ export default async function Home() {
             )}
           </div>
           <div className="flex flex-col gap-4 mt-4">
-            {delegate.participation?.length ? (
-              delegate.participation
+            {votes?.length ? (
+              votes
                 .slice(0, 5)
-                .map((participation, index) => (
+                .map((vote, index: number) => (
                   <ParticipationItem
-                    key={participation.proposalId}
-                    proposalName={participation.proposalName}
-                    support={participation.support}
-                    params={participation.params}
-                    proposalId={participation.proposalId}
-                    date={participation.date}
+                    key={vote.proposalId}
+                    proposalName={vote.proposalName}
+                    support={vote.support}
+                    params={vote.params}
+                    proposalId={vote.proposalId}
+                    date={vote.date}
+                    percentage={vote.percentage}
                     isFirst={index === 0}
                   />
                 ))

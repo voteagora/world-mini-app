@@ -1,14 +1,24 @@
+import { auth } from "@/auth";
 import { EmptyComponent } from "@/components/EmptyComponent";
 import { Page } from "@/components/PageLayout";
 import { ParticipationItem } from "@/components/ParticipationItem";
 import { ProposalList } from "@/components/ProposalList";
 import { SeeAllDrawer } from "@/components/SeeAllDrawer";
-import { delegate } from "@/utils/constants";
+import {
+  getAllProposalsFromDaoNode,
+  getVotesForDelegateFromDaoNode,
+} from "@/lib/dao-node/client";
 import { TopBar } from "@worldcoin/mini-apps-ui-kit-react";
 import { Clock, ClockSolid } from "iconoir-react";
 
 export default async function Proposals() {
-  const votes = delegate.participation;
+  const proposals = await getAllProposalsFromDaoNode();
+  const session = await auth();
+  const delegate = await getVotesForDelegateFromDaoNode(
+    session?.user.walletAddress
+  );
+  const votes = delegate?.voter_history;
+
   return (
     <>
       <Page.Header className="p-0">
@@ -22,17 +32,20 @@ export default async function Proposals() {
                 </div>
               }
               title="Votes"
-              items={votes.map((vote, index) => (
-                <ParticipationItem
-                  key={vote.proposalId}
-                  proposalId={vote.proposalId}
-                  proposalName={vote.proposalName}
-                  support={vote.support}
-                  date={vote.date}
-                  params={vote.params}
-                  isFirst={index === 0}
-                />
-              ))}
+              items={
+                votes?.map((vote, index: number) => (
+                  <ParticipationItem
+                    key={vote.proposalId}
+                    proposalId={vote.proposalId}
+                    proposalName={vote.proposalName}
+                    support={vote.support}
+                    date={vote.date}
+                    params={vote.params}
+                    percentage={vote.percentage}
+                    isFirst={index === 0}
+                  />
+                )) ?? []
+              }
               emptyComponent={
                 <EmptyComponent
                   icon={<ClockSolid className="w-12 h-12 text-white" />}
@@ -45,7 +58,7 @@ export default async function Proposals() {
         />
       </Page.Header>
       <Page.Main className="flex flex-col items-start justify-start gap-4 mb-16 px-4">
-        <ProposalList />
+        <ProposalList proposals={proposals} />
       </Page.Main>
     </>
   );

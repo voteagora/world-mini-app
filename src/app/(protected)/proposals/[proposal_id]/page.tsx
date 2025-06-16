@@ -1,14 +1,9 @@
 import { Page } from "@/components/PageLayout";
-import { proposals } from "@/utils/constants";
 import {
   Typography,
   Progress,
   TopBar,
   Button,
-  Drawer,
-  DrawerTrigger,
-  DrawerContent,
-  DrawerHeader,
 } from "@worldcoin/mini-apps-ui-kit-react";
 import { CheckCircleSolid } from "iconoir-react";
 import Link from "next/link";
@@ -16,17 +11,17 @@ import { TruncatedText } from "@/components/TruncatedText";
 import { SeeAllDrawer } from "@/components/SeeAllDrawer";
 import { UserVoteItem } from "@/components/UserVoteItem";
 import { notFound } from "next/navigation";
-import { VoteDrawerContent } from "@/components/VoteDrawerContent";
+import { VoteDrawerContentWrapper } from "@/components/VoteDrawerContent";
 import { ArrowLeftIcon } from "@/components/icons/ArrowLeft";
+import { getProposalFromDaoNode } from "@/lib/dao-node/client";
 
 export default async function ProposalPage({
   params,
 }: {
   params: Promise<{ proposal_id: string }>;
 }) {
-  const voteState = null;
   const { proposal_id } = await params;
-  const proposal = proposals.find((proposal) => proposal.id === proposal_id);
+  const proposal = await getProposalFromDaoNode(proposal_id);
   if (!proposal) {
     notFound();
   }
@@ -184,72 +179,44 @@ export default async function ProposalPage({
               </div>
             </div>
           )}
-          {proposalType === "optimistic" && (
-            <div className="flex flex-col gap-4 mt-4">
-              <div className="flex flex-col gap-2">
-                <Typography variant="subtitle" level={3} color="default">
-                  Against
-                </Typography>
-                <Progress
-                  value={Number.parseFloat(
-                    proposal.votes.against?.percentage ?? "0"
-                  )}
-                  max={100}
-                  className="h-1.5 text-red-600 bg-gray-50"
-                />
-                <div className="flex justify-between">
-                  <Typography
-                    variant="body"
-                    level={3}
-                    color="default"
-                    className="text-gray-500"
-                  >
-                    {proposal.votes.against?.amount ?? "0"}
-                  </Typography>
-                  <Typography
-                    variant="subtitle"
-                    level={3}
-                    color="default"
-                    className="text-gray-900 font-medium"
-                  >
-                    {proposal.votes.against?.percentage ?? "0%"}
-                  </Typography>
-                </div>
-              </div>
-            </div>
-          )}
           {proposalType === "approval" && (
             <div className="flex flex-col gap-4 mt-4">
-              {Object.entries(proposal.votes).map(([key, value]) => (
-                <div key={key} className="flex flex-col gap-2">
-                  <Typography variant="subtitle" level={3} color="default">
-                    {key}
-                  </Typography>
-                  <Progress
-                    value={Number.parseFloat(value.percentage ?? "0")}
-                    max={100}
-                    className="h-1.5 text-green-600 bg-gray-50"
-                  />
-                  <div className="flex justify-between">
-                    <Typography
-                      variant="body"
-                      level={3}
-                      color="default"
-                      className="text-gray-500"
-                    >
-                      {value.amount}
+              {Object.entries(proposal.votes).map(([key, value]) => {
+                const voteData = value as {
+                  amount: string;
+                  percentage: string;
+                };
+                return (
+                  <div key={key} className="flex flex-col gap-2">
+                    <Typography variant="subtitle" level={3} color="default">
+                      {key}
                     </Typography>
-                    <Typography
-                      variant="subtitle"
-                      level={3}
-                      color="default"
-                      className="text-gray-900 font-medium"
-                    >
-                      {value.percentage}
-                    </Typography>
+                    <Progress
+                      value={Number.parseFloat(voteData.percentage ?? "0")}
+                      max={100}
+                      className="h-1.5 text-green-600 bg-gray-50"
+                    />
+                    <div className="flex justify-between">
+                      <Typography
+                        variant="body"
+                        level={3}
+                        color="default"
+                        className="text-gray-500"
+                      >
+                        {voteData.amount}
+                      </Typography>
+                      <Typography
+                        variant="subtitle"
+                        level={3}
+                        color="default"
+                        className="text-gray-900 font-medium"
+                      >
+                        {voteData.percentage}
+                      </Typography>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
@@ -282,8 +249,8 @@ export default async function ProposalPage({
                 items={
                   proposal.userVotes?.map((user) => (
                     <UserVoteItem
-                      key={user.name}
-                      name={user.name}
+                      key={user.address}
+                      address={user.address}
                       support={user.support}
                       params={user.params}
                       proposalType={proposalType}
@@ -300,8 +267,8 @@ export default async function ProposalPage({
                 .slice(0, 3)
                 .map((user) => (
                   <UserVoteItem
-                    key={user.name}
-                    name={user.name}
+                    key={user.address}
+                    address={user.address}
                     support={user.support}
                     params={user.params}
                     proposalType={proposalType}
@@ -323,30 +290,7 @@ export default async function ProposalPage({
         </div>
 
         {proposal.status === "active" ? (
-          <Drawer>
-            <DrawerTrigger
-              disabled={proposal.status !== "active" || voteState === "success"}
-              asChild
-            >
-              <Button variant="primary" size="lg" className="w-full py-2 my-8">
-                <div className="flex items-center py-4">
-                  {voteState === "success" ? "You've already voted" : "Vote"}
-                </div>
-              </Button>
-            </DrawerTrigger>
-            <DrawerContent>
-              <Page.Header className="pb-0">
-                <DrawerHeader />
-              </Page.Header>
-              <Page.Main className="flex flex-col justify-between pt-0 mb-4 h-[calc(100vh-100px)]">
-                <VoteDrawerContent
-                  proposal={proposal}
-                  proposalType={proposalType}
-                  initialVoteState={null}
-                />
-              </Page.Main>
-            </DrawerContent>
-          </Drawer>
+          <VoteDrawerContentWrapper proposal={proposal} />
         ) : (
           <Button className="w-full py-2" variant="primary" size="lg" disabled>
             Not open to voting
