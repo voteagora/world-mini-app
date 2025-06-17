@@ -137,7 +137,10 @@ export const formatVoteSupport = (
 export const getProposalStatus = (
   proposal: Proposal,
   currentBlock: bigint
-): "active" | "succeeded" | "failed" | "executed" | "pending" => {
+): "active" | "succeeded" | "failed" | "executed" | "pending" | "canceled" => {
+  if (!!proposal.cancel_event) {
+    return "canceled";
+  }
   if (currentBlock < proposal.vote_start) {
     return "pending";
   } else if (currentBlock <= proposal.vote_end) {

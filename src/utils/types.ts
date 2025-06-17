@@ -2,7 +2,13 @@
 export interface ProposalData {
   id: string;
   type: "standard" | "approval";
-  status: "active" | "succeeded" | "failed" | "executed" | "pending";
+  status:
+    | "active"
+    | "succeeded"
+    | "failed"
+    | "executed"
+    | "pending"
+    | "canceled";
   title: string;
   description: string;
   endsIn?: string;
@@ -61,6 +67,7 @@ export interface Proposal {
   voting_module_name: string;
   totals: VoteTotals;
   decoded_proposal_data: any[];
+  cancel_event: any;
 }
 
 export interface VoteHistoryItem {

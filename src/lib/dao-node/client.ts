@@ -141,7 +141,11 @@ export const getAllProposalsFromDaoNode = unstable_cache(
         sortedProposalsArray.map(transformProposalToProposalData)
       );
 
-      return parsedProposals;
+      const filteredProposals = parsedProposals.filter(
+        (proposal) => proposal.status !== "canceled"
+      );
+
+      return filteredProposals;
     } catch (error) {
       console.error("Failed to fetch from DAO Node API:", error);
       throw error;
