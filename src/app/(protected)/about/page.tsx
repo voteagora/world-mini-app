@@ -4,9 +4,6 @@ import { TopBar, Typography } from "@worldcoin/mini-apps-ui-kit-react";
 export default function About() {
   return (
     <>
-      <Page.Header className="p-0">
-        <TopBar title="World Governance" />
-      </Page.Header>
       <Page.Main className="flex flex-col items-start justify-start gap-4 mb-16 px-4 overflow-y-auto">
         <div className="bg-[#F3F2F0] flex items-center justify-center w-full h-52 shrink-0">
           <div className="flex gap-4 items-center justify-center">

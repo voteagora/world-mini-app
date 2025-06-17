@@ -13,22 +13,13 @@ export default function Home() {
     <Page>
       <Page.Main className="flex flex-col items-between justify-center mt-20 mb-8">
         <div className="w-full flex flex-col items-start justify-center">
-          <div className="flex items-center justify-center gap-8">
-            <img src="/app-icon.png" alt="World Vote" className="mb-8" />
-            <Typography
-              className="text-left mb-8 w-full"
-              variant="heading"
-              level={2}
-            >
-              World Vote
-            </Typography>
-          </div>
+          <img src="/app-icon.png" alt="World Vote" className="mb-8" />
           <Typography
             className="text-left mb-8 w-full"
             variant="heading"
             level={1}
           >
-            Verified votes. <br /> Real governance.
+            World Vote
           </Typography>
           <BulletList>
             <BulletListItem
