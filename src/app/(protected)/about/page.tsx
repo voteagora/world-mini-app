@@ -1,5 +1,5 @@
 import { Page } from "@/components/PageLayout";
-import { TopBar, Typography } from "@worldcoin/mini-apps-ui-kit-react";
+import { Typography } from "@worldcoin/mini-apps-ui-kit-react";
 
 export default function About() {
   return (
