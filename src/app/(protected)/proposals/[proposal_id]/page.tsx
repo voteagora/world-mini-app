@@ -288,7 +288,7 @@ export default async function ProposalPage({
                   variant="subtitle"
                   level={3}
                   color="default"
-                  className="text-red-500"
+                  className="text-gray-500 italic"
                 >
                   No user votes yet
                 </Typography>

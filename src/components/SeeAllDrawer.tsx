@@ -47,7 +47,7 @@ export function SeeAllDrawer({
                   variant="subtitle"
                   level={3}
                   color="default"
-                  className="text-red-500"
+                  className="text-gray-500 italic"
                 >
                   {emptyMessage}
                 </Typography>
