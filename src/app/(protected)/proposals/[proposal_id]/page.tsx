@@ -303,6 +303,7 @@ export default async function ProposalPage({
             hasVoted={delegate?.voter_history?.some(
               (vote) => vote.proposalId === proposal_id
             )}
+            walletAddress={session?.user.walletAddress ?? ""}
           />
         ) : (
           <Button className="w-full py-2" variant="primary" size="lg" disabled>

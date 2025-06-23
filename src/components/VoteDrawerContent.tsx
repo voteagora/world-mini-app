@@ -25,6 +25,7 @@ interface VoteDrawerContentProps {
   proposalType: "standard" | "approval";
   voteState: string | null;
   setVoteState: Dispatch<SetStateAction<string | null>>;
+  walletAddress: string;
 }
 
 export function VoteDrawerContent({
@@ -32,7 +33,9 @@ export function VoteDrawerContent({
   proposalType,
   voteState,
   setVoteState,
+  walletAddress,
 }: VoteDrawerContentProps) {
+  console.log("walletAddress", walletAddress);
   const [voteStep, setVoteStep] = useState(1);
   const [reason, setReason] = useState("");
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
@@ -103,17 +106,11 @@ export function VoteDrawerContent({
     const voteParamsData = getVoteParams(worldIdProof);
     console.log("submitVoteWithProof: Got vote params:", voteParamsData);
 
-    const userInfo = MiniKit.user;
-    console.log("submitVoteWithProof: MiniKit user info:", userInfo);
-
-    if (!userInfo?.walletAddress) {
+    if (!walletAddress) {
       console.error("submitVoteWithProof: No wallet address available");
       throw new Error("User wallet address not available");
     }
-    console.log(
-      "submitVoteWithProof: Using wallet address:",
-      userInfo.walletAddress
-    );
+    console.log("submitVoteWithProof: Using wallet address:", walletAddress);
 
     console.log("submitVoteWithProof: Preparing vote parameters with API call");
     const response = await fetch("/api/vote/prepare", {
@@ -123,7 +120,7 @@ export function VoteDrawerContent({
       },
       body: JSON.stringify({
         voteParamsData,
-        voterAddress: userInfo.walletAddress,
+        voterAddress: walletAddress,
       }),
     });
 
@@ -166,7 +163,7 @@ export function VoteDrawerContent({
     const message = {
       proposalId: BigInt(proposal.id),
       support: supportValue,
-      voter: userInfo.walletAddress as `0x${string}`,
+      voter: walletAddress as `0x${string}`,
       nonce: BigInt(nonce),
       reason: reason,
       params: encodedParams as `0x${string}`,
@@ -201,7 +198,7 @@ export function VoteDrawerContent({
         support: supportValue,
         reason,
         encodedParams,
-        voterAddress: userInfo.walletAddress,
+        voterAddress: walletAddress,
         signature: signResult.finalPayload.signature,
       }),
     });
@@ -543,9 +540,11 @@ export function VoteDrawerContent({
 export const VoteDrawerContentWrapper = ({
   proposal,
   hasVoted = false,
+  walletAddress,
 }: {
   proposal: ProposalData;
   hasVoted?: boolean;
+  walletAddress: string;
 }) => {
   const [voteState, setVoteState] = useState<string | null>(
     hasVoted ? "success" : null
@@ -572,6 +571,7 @@ export const VoteDrawerContentWrapper = ({
             proposalType={proposal.type}
             voteState={voteState}
             setVoteState={setVoteState}
+            walletAddress={walletAddress}
           />
         </Page.Main>
       </DrawerContent>
