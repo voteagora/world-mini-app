@@ -142,8 +142,6 @@ export function VoteDrawerContent({
 
     console.log("submitVoteWithProof: Creating EIP-712 typed data");
     const domain = {
-      name: "AgoraGovernor",
-      version: "1",
       chainId: 480,
       verifyingContract:
         "0x2809b50B42F0F6a7183239416cfB19f27EA8A412" as `0x${string}`,
@@ -158,13 +156,17 @@ export function VoteDrawerContent({
         { name: "reason", type: "string" },
         { name: "params", type: "bytes" },
       ],
+      EIP712Domain: [
+        { type: "uint256", name: "chainId" },
+        { type: "address", name: "verifyingContract" },
+      ],
     };
 
     const message = {
-      proposalId: BigInt(proposal.id),
+      proposalId: proposal.id,
       support: supportValue,
       voter: walletAddress as `0x${string}`,
-      nonce: BigInt(nonce),
+      nonce: nonce,
       reason: reason,
       params: encodedParams as `0x${string}`,
     };
