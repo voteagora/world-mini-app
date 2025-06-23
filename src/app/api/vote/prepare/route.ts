@@ -12,7 +12,7 @@ const governorAbi = parseAbi([
 interface VoteParamsData {
   root: string;
   nullifierHash: string;
-  proof: string[];
+  proof: string;
   options: number[];
 }
 
@@ -58,11 +58,11 @@ export async function POST(request: NextRequest) {
     }
 
     if (
-      !Array.isArray(voteParamsData.proof) ||
-      voteParamsData.proof.length !== 8
+      typeof voteParamsData.proof !== "string" ||
+      !voteParamsData.proof.startsWith("0x")
     ) {
       return NextResponse.json(
-        { error: "Invalid World ID proof format - expected 8 elements" },
+        { error: "Invalid World ID proof format - expected hex string" },
         { status: 400 }
       );
     }
@@ -89,30 +89,18 @@ export async function POST(request: NextRequest) {
       args: [voterAddress as `0x${string}`],
     });
 
-    // Encode params according to contract interface: (uint256 root, uint256 nullifierHash, uint256[8] memory proof, uint256[] memory options)
+    // Encode params according to contract interface: (uint256 root, uint256 nullifierHash, bytes memory proof, uint256[] memory options)
     const encodedParams = encodeAbiParameters(
       [
         { name: "root", type: "uint256" },
         { name: "nullifierHash", type: "uint256" },
-        { name: "proof", type: "uint256[8]" },
+        { name: "proof", type: "bytes" },
         { name: "options", type: "uint256[]" },
       ],
       [
         BigInt(voteParamsData.root),
         BigInt(voteParamsData.nullifierHash),
-        voteParamsData.proof
-          .map((p) => BigInt(p))
-          .concat(Array(8 - voteParamsData.proof.length).fill(BigInt(0)))
-          .slice(0, 8) as [
-          bigint,
-          bigint,
-          bigint,
-          bigint,
-          bigint,
-          bigint,
-          bigint,
-          bigint
-        ],
+        voteParamsData.proof.slice(2) as `0x${string}`,
         voteParamsData.options.map((o) => BigInt(o)),
       ]
     );
