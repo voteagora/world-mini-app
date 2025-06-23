@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import Confetti from "react-confetti";
 import {
   Typography,
@@ -19,6 +19,19 @@ import { MiniKit } from "@worldcoin/minikit-js";
 import { Options } from "@/components/CastVote/Options";
 import { ProposalData } from "@/utils/types";
 import { Page } from "./PageLayout";
+import {
+  createPublicClient,
+  decodeAbiParameters,
+  encodeAbiParameters,
+  http,
+  parseAbi,
+} from "viem";
+import { useWaitForTransactionReceipt } from "@worldcoin/minikit-react";
+import { worldchain } from "viem/chains";
+
+const governorAbi = parseAbi([
+  "function castVoteWithReasonAndParams(uint256 proposalId, uint8 support, string reason, bytes params) external returns (uint256)",
+]);
 
 interface VoteDrawerContentProps {
   proposal: ProposalData;
@@ -41,6 +54,30 @@ export function VoteDrawerContent({
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
   const [isVerifying, setIsVerifying] = useState(false);
   const [voteError, setVoteError] = useState<string | null>(null);
+  const [txHash, setTxHash] = useState<string | null>(null);
+
+  const client = createPublicClient({
+    chain: worldchain,
+    transport: http("https://worldchain-mainnet.g.alchemy.com/public"),
+  });
+
+  const { isSuccess, isError, error } = useWaitForTransactionReceipt({
+    client,
+    appConfig: {
+      app_id: process.env.NEXT_PUBLIC_APP_ID || "",
+    },
+    transactionId: txHash || "",
+  });
+
+  useEffect(() => {
+    if (isSuccess) {
+      setVoteState("success");
+    }
+    if (isError) {
+      setVoteError(error?.message || "An unexpected error occurred");
+      setVoteState("failure");
+    }
+  }, [isSuccess, isError]);
 
   const handleWorldIDSuccess = async (result: ISuccessResult) => {
     console.log("handleWorldIDSuccess: Starting with result:", result);
@@ -52,19 +89,20 @@ export function VoteDrawerContent({
 
     try {
       console.log("handleWorldIDSuccess: Calling submitVoteWithProof");
-      const voteData = await submitVoteWithProof(result);
+      const signResult = await submitVoteWithProof(result);
       console.log(
         "handleWorldIDSuccess: submitVoteWithProof returned:",
-        voteData
+        signResult
       );
 
-      if (voteData.success) {
+      if (signResult.finalPayload.status === "success") {
         console.log(
           "handleWorldIDSuccess: Vote successful, setting state to success"
         );
         setVoteState("success");
       } else {
-        const errorMsg = voteData.error || "Failed to submit vote";
+        const errorMsg =
+          signResult.finalPayload.error_code || "Failed to submit vote";
         console.log("handleWorldIDSuccess: Vote failed with error:", errorMsg);
         setVoteError(errorMsg);
         setVoteState("failure");
@@ -106,132 +144,61 @@ export function VoteDrawerContent({
     const voteParamsData = getVoteParams(worldIdProof);
     console.log("submitVoteWithProof: Got vote params:", voteParamsData);
 
+    if (!voteParamsData) {
+      console.error("submitVoteWithProof: No vote params data available");
+      throw new Error("Failed to get vote parameters");
+    }
+
     if (!walletAddress) {
       console.error("submitVoteWithProof: No wallet address available");
       throw new Error("User wallet address not available");
     }
     console.log("submitVoteWithProof: Using wallet address:", walletAddress);
 
-    console.log("submitVoteWithProof: Preparing vote parameters with API call");
-    const response = await fetch("/api/vote/prepare", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        voteParamsData,
-        voterAddress: walletAddress,
-      }),
-    });
+    console.log("submitVoteWithProof: Encoding vote parameters");
 
-    console.log(
-      "submitVoteWithProof: Prepare API response status:",
-      response.status
+    console.log("submitVoteWithProof: Proof:", voteParamsData.proof);
+
+    const decodedProof = decodeAbiParameters(
+      [{ name: "proof", type: "uint256[8]" }],
+      voteParamsData.proof as `0x${string}`
     );
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.error("submitVoteWithProof: Prepare API error:", errorData);
-      throw new Error(errorData.error || "Failed to prepare vote");
-    }
 
-    const { encodedParams, nonce } = await response.json();
-    console.log("submitVoteWithProof: Got encoded params and nonce:", {
-      encodedParams,
-      nonce,
-    });
+    console.log("submitVoteWithProof: Decoded proof:", decodedProof);
 
-    console.log("submitVoteWithProof: Creating EIP-712 typed data");
-    const domain = {
-      chainId: 480,
-      verifyingContract:
-        "0x2809b50B42F0F6a7183239416cfB19f27EA8A412" as `0x${string}`,
-    };
-
-    const types = {
-      ExtendedBallot: [
-        { name: "proposalId", type: "uint256" },
-        { name: "support", type: "uint8" },
-        { name: "voter", type: "address" },
-        { name: "nonce", type: "uint256" },
-        { name: "reason", type: "string" },
-        { name: "params", type: "bytes" },
+    const voteParams = encodeAbiParameters(
+      [
+        { name: "root", type: "uint256" },
+        { name: "nullifierHash", type: "uint256" },
+        { name: "proof", type: "uint256[8]" },
+        { name: "options", type: "uint256[]" },
       ],
-      EIP712Domain: [
-        { type: "uint256", name: "chainId" },
-        { type: "address", name: "verifyingContract" },
-      ],
-    };
-
-    const message = {
-      proposalId: proposal.id,
-      support: supportValue,
-      voter: walletAddress as `0x${string}`,
-      nonce: nonce,
-      reason: reason,
-      params: encodedParams as `0x${string}`,
-    };
-
-    console.log("submitVoteWithProof: EIP-712 message:", message);
-    console.log("submitVoteWithProof: Requesting signature from MiniKit");
-
-    const signResult = await MiniKit.commandsAsync.signTypedData({
-      domain,
-      types,
-      primaryType: "ExtendedBallot",
-      message,
-    });
-
-    console.log("submitVoteWithProof: Sign result:", signResult);
-
-    if (signResult?.finalPayload?.status !== "success") {
-      console.log(
-        "submitVoteWithProof: Final payload:",
-        signResult.finalPayload
-      );
-      console.log(
-        "submitVoteWithProof: Final payload status:",
-        signResult.finalPayload.status
-      );
-      console.log(
-        "submitVoteWithProof: Final payload error code:",
-        signResult.finalPayload
-      );
-      console.log(
-        "submitVoteWithProof: Final payload details:",
-        signResult.finalPayload.details
-      );
-    }
-    console.log("submitVoteWithProof: Signature successful");
-
-    console.log("submitVoteWithProof: Submitting vote to API");
-    const submitResponse = await fetch("/api/vote", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        proposalId: proposal.id,
-        support: supportValue,
-        reason,
-        encodedParams,
-        voterAddress: walletAddress,
-        signature: (signResult.finalPayload as any).signature,
-      }),
-    });
-
-    console.log(
-      "submitVoteWithProof: Submit API response status:",
-      submitResponse.status
+      [
+        BigInt(voteParamsData.root),
+        BigInt(voteParamsData.nullifierHash),
+        decodedProof?.[0],
+        voteParamsData.options.map((o) => BigInt(o)),
+      ]
     );
-    if (!submitResponse.ok) {
-      const errorData = await submitResponse.json();
-      console.error("submitVoteWithProof: Submit API error:", errorData);
-      throw new Error(errorData.error || "Failed to submit vote");
+
+    console.log("submitVoteWithProof: Sending transaction", voteParams);
+    const signResult = await MiniKit.commandsAsync.sendTransaction({
+      transaction: [
+        {
+          address:
+            "0x2809b50B42F0F6a7183239416cfB19f27EA8A412" as `0x${string}`,
+          abi: governorAbi,
+          functionName: "castVoteWithReasonAndParams",
+          args: [proposal.id, supportValue, reason, voteParams],
+        },
+      ],
+    });
+
+    if (signResult.finalPayload.status === "success") {
+      setTxHash(signResult.finalPayload.transaction_id);
     }
 
-    const result = await submitResponse.json();
-    console.log("submitVoteWithProof: Final result:", result);
-    return result;
+    return signResult;
   };
 
   const getSupportValue = (): number => {
