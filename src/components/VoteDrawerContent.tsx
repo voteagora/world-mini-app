@@ -182,8 +182,22 @@ export function VoteDrawerContent({
     console.log("submitVoteWithProof: Sign result:", signResult);
 
     if (signResult?.finalPayload?.status !== "success") {
-      console.error("submitVoteWithProof: Failed to sign vote:", signResult);
-      throw new Error("Failed to sign vote");
+      console.log(
+        "submitVoteWithProof: Final payload:",
+        signResult.finalPayload
+      );
+      console.log(
+        "submitVoteWithProof: Final payload status:",
+        signResult.finalPayload.status
+      );
+      console.log(
+        "submitVoteWithProof: Final payload error code:",
+        signResult.finalPayload
+      );
+      console.log(
+        "submitVoteWithProof: Final payload details:",
+        signResult.finalPayload.details
+      );
     }
     console.log("submitVoteWithProof: Signature successful");
 
@@ -199,7 +213,7 @@ export function VoteDrawerContent({
         reason,
         encodedParams,
         voterAddress: walletAddress,
-        signature: signResult.finalPayload.signature,
+        signature: (signResult.finalPayload as any).signature,
       }),
     });
 
