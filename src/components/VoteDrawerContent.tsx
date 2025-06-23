@@ -208,7 +208,7 @@ export function VoteDrawerContent({
         return;
       }
 
-      const action = `vote_${process.env.NEXT_PUBLIC_APP_ID}`;
+      const action = "vote-action";
       const signal = `${proposal.id}_${supportValue}_${reason}`;
 
       try {
