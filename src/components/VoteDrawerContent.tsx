@@ -23,9 +23,9 @@ import {
   createPublicClient,
   decodeAbiParameters,
   encodeAbiParameters,
-  // encodePacked,
+  encodePacked,
   http,
-  // keccak256,
+  keccak256,
   parseAbi,
 } from "viem";
 import { useWaitForTransactionReceipt } from "@worldcoin/minikit-react";
@@ -35,10 +35,10 @@ const governorAbi = parseAbi([
   "function castVoteWithReasonAndParams(uint256 proposalId, uint8 support, string reason, bytes params) external returns (uint256)",
 ]);
 
-// const hashToField = (value: `0x${string}`): bigint => {
-//   const hash = keccak256(value);
-//   return BigInt(hash) >> BigInt(8);
-// };
+const hashToField = (value: `0x${string}`): bigint => {
+  const hash = keccak256(value);
+  return BigInt(hash) >> BigInt(8);
+};
 
 interface VoteDrawerContentProps {
   proposal: ProposalData;
@@ -62,6 +62,16 @@ export function VoteDrawerContent({
   const [isVerifying, setIsVerifying] = useState(false);
   const [voteError, setVoteError] = useState<string | null>(null);
   const [txHash, setTxHash] = useState<string | null>(null);
+
+  console.log(
+    "action",
+    hashToField(
+      encodePacked(
+        ["uint256", "address"],
+        [BigInt(proposal.id), "0x2809b50b42F0F6a7183239416cfB19f27EA8A412"]
+      )
+    )
+  );
 
   const client = createPublicClient({
     chain: worldchain,
@@ -301,17 +311,22 @@ export function VoteDrawerContent({
         return;
       }
 
-      const action = [
-        "59308937869022535921704501315595447571202032525847472902300434671263662341029",
-        "0x2809b50b42f0f6a7183239416cfb19f27ea8a412",
-      ];
       // const action =
-      //   "307265779713653938034808686112387179706088560592699352645141244196505628497";
-      const signal = [
-        walletAddress as `0x${string}`,
-        BigInt(proposal.id),
-        supportValue,
-      ];
+      //   "593089378690225359217045013155954475712020325258474729023004346712636623410290x2809b50b42f0f6a7183239416cfb19f27ea8a412";
+      // const action =
+      //   "0x831fab53585cbe9c3fc3b2d9d7ecc48ac2ecbdc9b83b5b0df5b77d565999fba52809b50b42f0f6a7183239416cfb19f27ea8a412";
+      const action = hashToField(
+        encodePacked(
+          ["uint256", "address"],
+          [BigInt(proposal.id), "0x2809b50b42F0F6a7183239416cfB19f27EA8A412"]
+        )
+      );
+      const signal = hashToField(
+        encodePacked(
+          ["address", "uint256", "uint8"],
+          [walletAddress as `0x${string}`, BigInt(proposal.id), supportValue]
+        )
+      );
       console.log("handleSubmitVote: World ID verification params:", {
         action,
         signal,
