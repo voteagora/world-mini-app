@@ -7,19 +7,26 @@ import {
 } from "@worldcoin/mini-apps-ui-kit-react";
 import { BulletList } from "@worldcoin/mini-apps-ui-kit-react";
 import { Community, Globe, Shield } from "iconoir-react";
+import Image from "next/image";
 
 export default function Home() {
   return (
     <Page>
       <Page.Main className="flex flex-col items-between justify-center mt-20 mb-8">
         <div className="w-full flex flex-col items-start justify-center">
-          <img src="/app-icon.svg" alt="World Vote" className="mb-8" />
+          <Image
+            width={88}
+            height={88}
+            src="/app-icon.png"
+            alt="World Vote"
+            className="mb-8 rounded-3xl"
+          />
           <Typography
             className="text-left mb-8 w-full"
             variant="heading"
             level={1}
           >
-            World Vote
+            Verified votes. <br /> Securely onchain.
           </Typography>
           <BulletList>
             <BulletListItem
@@ -30,7 +37,8 @@ export default function Home() {
                 </CircularIcon>
               }
             >
-              Vote securely. Only World ID-verified users can participate.
+              Vote on World Foundation proposals for World ID-verified users
+              only.
             </BulletListItem>
 
             <BulletListItem
@@ -41,7 +49,7 @@ export default function Home() {
                 </CircularIcon>
               }
             >
-              Shape the future – Influence key proposals and community
+              Shape the future by influencing key proposals and community
               decisions.
             </BulletListItem>
 

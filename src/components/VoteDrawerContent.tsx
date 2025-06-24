@@ -539,7 +539,7 @@ export const VoteDrawerContentWrapper = ({
   return (
     <Drawer>
       <DrawerTrigger disabled={isDisabled} asChild>
-        <Button variant="primary" size="lg" className="w-full py-2 my-8">
+        <Button variant="primary" size="lg" className="w-full">
           <div className="flex items-center py-4">
             {voteState === "success" ? "You've already voted" : "Vote"}
           </div>

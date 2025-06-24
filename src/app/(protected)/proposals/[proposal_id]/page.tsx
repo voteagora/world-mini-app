@@ -49,7 +49,7 @@ export default async function ProposalPage({
           }
         />
       </Page.Header>
-      <Page.Main className="flex flex-col items-start justify-start gap-4 mb-16 px-4">
+      <Page.Main className="flex flex-col items-start justify-start gap-4 mb-32 px-4">
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-2 text-gray-500">
             <Typography variant="body" level={3} color="default">
@@ -296,7 +296,9 @@ export default async function ProposalPage({
             )}
           </div>
         </div>
+      </Page.Main>
 
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 mb-8 mt-0 z-10">
         {proposal.status === "active" ? (
           <VoteDrawerContentWrapper
             proposal={proposal}
@@ -310,7 +312,7 @@ export default async function ProposalPage({
             Not open to voting
           </Button>
         )}
-      </Page.Main>
+      </div>
     </>
   );
 }
