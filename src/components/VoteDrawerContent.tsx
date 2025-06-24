@@ -298,7 +298,7 @@ export function VoteDrawerContent({
       // const action =
       //   "593089378690225359217045013155954475712020325258474729023004346712636623410290x2809b50b42f0f6a7183239416cfb19f27ea8a412";
       const action =
-        "307265779713653938034808686112387179706088560592699352645141244196505628497";
+        "0x831fab53585cbe9c3fc3b2d9d7ecc48ac2ecbdc9b83b5b0df5b77d565999fba52809b50b42f0f6a7183239416cfb19f27ea8a412";
       const signal = encodePacked(
         ["address", "uint256", "uint8"],
         [walletAddress as `0x${string}`, BigInt(proposal.id), supportValue]
