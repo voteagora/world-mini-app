@@ -294,7 +294,8 @@ export function VoteDrawerContent({
         return;
       }
 
-      const action = "vote-action";
+      const action =
+        "593089378690225359217045013155954475712020325258474729023004346712636623410290x2809b50b42f0f6a7183239416cfb19f27ea8a412";
       const signal = `${walletAddress}${proposal.id}${supportValue}`;
       console.log("handleSubmitVote: World ID verification params:", {
         action,
