@@ -25,6 +25,7 @@ import {
   encodeAbiParameters,
   encodePacked,
   http,
+  keccak256,
   parseAbi,
 } from "viem";
 import { useWaitForTransactionReceipt } from "@worldcoin/minikit-react";
@@ -33,6 +34,11 @@ import { worldchain } from "viem/chains";
 const governorAbi = parseAbi([
   "function castVoteWithReasonAndParams(uint256 proposalId, uint8 support, string reason, bytes params) external returns (uint256)",
 ]);
+
+const hashToField = (value: `0x${string}`): bigint => {
+  const hash = keccak256(value);
+  return BigInt(hash) >> BigInt(8);
+};
 
 interface VoteDrawerContentProps {
   proposal: ProposalData;
@@ -298,10 +304,12 @@ export function VoteDrawerContent({
       // const action =
       //   "593089378690225359217045013155954475712020325258474729023004346712636623410290x2809b50b42f0f6a7183239416cfb19f27ea8a412";
       const action =
-        "0x831fab53585cbe9c3fc3b2d9d7ecc48ac2ecbdc9b83b5b0df5b77d565999fba52809b50b42f0f6a7183239416cfb19f27ea8a412";
-      const signal = encodePacked(
-        ["address", "uint256", "uint8"],
-        [walletAddress as `0x${string}`, BigInt(proposal.id), supportValue]
+        "307265779713653938034808686112387179706088560592699352645141244196505628497";
+      const signal = hashToField(
+        encodePacked(
+          ["address", "uint256", "uint8"],
+          [walletAddress as `0x${string}`, BigInt(proposal.id), supportValue]
+        )
       );
       console.log("handleSubmitVote: World ID verification params:", {
         action,
@@ -311,8 +319,8 @@ export function VoteDrawerContent({
       try {
         console.log("handleSubmitVote: Calling MiniKit.commandsAsync.verify");
         const result = await MiniKit.commandsAsync.verify({
-          action,
-          signal,
+          action: action.toString(),
+          signal: signal.toString(),
           verification_level: VerificationLevel.Orb,
         });
 
