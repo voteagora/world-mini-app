@@ -295,7 +295,7 @@ export function VoteDrawerContent({
       }
 
       const action = "vote-action";
-      const signal = `${proposal.id}_${supportValue}_${reason}`;
+      const signal = `${walletAddress}${proposal.id}${supportValue}`;
       console.log("handleSubmitVote: World ID verification params:", {
         action,
         signal,
