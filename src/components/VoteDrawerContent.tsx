@@ -56,23 +56,12 @@ export function VoteDrawerContent({
   setVoteState,
   walletAddress,
 }: VoteDrawerContentProps) {
-  logger.log("walletAddress", walletAddress);
   const [voteStep, setVoteStep] = useState(1);
   const [reason, setReason] = useState("");
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
   const [isVerifying, setIsVerifying] = useState(false);
   const [voteError, setVoteError] = useState<string | null>(null);
   const [txHash, setTxHash] = useState<string | null>(null);
-
-  logger.log(
-    "action",
-    hashToField(
-      encodePacked(
-        ["uint256", "address"],
-        [BigInt(proposal.id), "0x2809b50B42F0F6a7183239416cfB19f27EA8A412"]
-      )
-    )
-  );
 
   const client = createPublicClient({
     chain: worldchain,
@@ -99,6 +88,15 @@ export function VoteDrawerContent({
 
   const handleWorldIDSuccess = async (result: ISuccessResult) => {
     logger.log("handleWorldIDSuccess: Starting with result:", result);
+    logger.log(
+      "action",
+      hashToField(
+        encodePacked(
+          ["uint256", "address"],
+          [BigInt(proposal.id), "0x2809b50B42F0F6a7183239416cfB19f27EA8A412"]
+        )
+      )
+    );
     setIsVerifying(true);
     setVoteError(null);
     logger.log("handleWorldIDSuccess: Set isVerifying=true, cleared voteError");

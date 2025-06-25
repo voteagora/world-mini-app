@@ -51,11 +51,39 @@ class ServerLogger {
     this.isProcessing = false;
   }
 
+  private serializeData(data: any): any {
+    if (data === null || data === undefined) return data;
+
+    try {
+      // Use JSON stringify/parse to deep clone and handle BigInt
+      return JSON.parse(
+        JSON.stringify(data, (key, value) => {
+          if (typeof value === "bigint") {
+            return value.toString() + "n";
+          }
+          if (typeof value === "function") {
+            return "[Function]";
+          }
+          if (value instanceof Error) {
+            return {
+              name: value.name,
+              message: value.message,
+              stack: value.stack,
+            };
+          }
+          return value;
+        })
+      );
+    } catch (error) {
+      return `[Unserializable: ${String(data)}]`;
+    }
+  }
+
   private addToQueue(level: LogLevel, message: string, data?: any) {
     const logEntry: LogEntry = {
       level,
       message,
-      data,
+      data: data ? this.serializeData(data) : undefined,
       timestamp: new Date().toISOString(),
       userAgent:
         typeof window !== "undefined" ? window.navigator.userAgent : undefined,

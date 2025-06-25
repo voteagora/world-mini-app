@@ -27,16 +27,23 @@ export async function POST(request: NextRequest) {
 
       switch (log.level) {
         case "error":
-          console.error(logMessage, contextInfo);
+          console.error(logMessage);
+          if (log.data)
+            console.error("Data:", JSON.stringify(log.data, null, 2));
           break;
         case "warn":
-          console.warn(logMessage, contextInfo);
+          console.warn(logMessage);
+          if (log.data)
+            console.warn("Data:", JSON.stringify(log.data, null, 2));
           break;
         case "info":
-          console.info(logMessage, contextInfo);
+          console.info(logMessage);
+          if (log.data)
+            console.info("Data:", JSON.stringify(log.data, null, 2));
           break;
         default:
-          console.log(logMessage, contextInfo);
+          console.log(logMessage);
+          if (log.data) console.log("Data:", JSON.stringify(log.data, null, 2));
       }
     }
 
