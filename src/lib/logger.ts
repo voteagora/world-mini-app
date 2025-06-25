@@ -75,6 +75,7 @@ class ServerLogger {
         })
       );
     } catch (error) {
+      console.error("Failed to serialize data:", error);
       return `[Unserializable: ${String(data)}]`;
     }
   }

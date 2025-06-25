@@ -19,11 +19,6 @@ export async function POST(request: NextRequest) {
       const logMessage = `[${log.timestamp}] [${log.level.toUpperCase()}] ${
         log.message
       }`;
-      const contextInfo = {
-        url: log.url,
-        userAgent: log.userAgent,
-        data: log.data,
-      };
 
       switch (log.level) {
         case "error":
