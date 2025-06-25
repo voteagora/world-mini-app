@@ -95,7 +95,7 @@ export function VoteDrawerContent({
       setVoteError(error?.message || "An unexpected error occurred");
       setVoteState("failure");
     }
-  }, [isSuccess, isError]);
+  }, [isSuccess, isError, error, setVoteState, setVoteError]);
 
   const handleWorldIDSuccess = async (result: ISuccessResult) => {
     logger.log("handleWorldIDSuccess: Starting with result:", result);

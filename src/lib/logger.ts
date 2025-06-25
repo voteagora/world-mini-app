@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 type LogLevel = "log" | "error" | "warn" | "info";
 
 interface LogEntry {
