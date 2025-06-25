@@ -328,8 +328,14 @@ export function VoteDrawerContent({
       try {
         logger.log("handleSubmitVote: Calling MiniKit.commandsAsync.verify");
         const result = await MiniKit.commandsAsync.verify({
-          action: action.toString(),
-          signal: signal.toString(),
+          action: encodeAbiParameters(
+            [{ type: "uint256" }, { type: "address" }],
+            [BigInt(proposal.id), "0x2809b50B42F0F6a7183239416cfB19f27EA8A412"]
+          ),
+          signal: encodeAbiParameters(
+            [{ type: "address" }, { type: "uint256" }, { type: "uint8" }],
+            [walletAddress as `0x${string}`, BigInt(proposal.id), supportValue]
+          ),
           verification_level: VerificationLevel.Orb,
         });
 
