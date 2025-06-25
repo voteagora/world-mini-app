@@ -68,7 +68,7 @@ export function VoteDrawerContent({
     hashToField(
       encodePacked(
         ["uint256", "address"],
-        [BigInt(proposal.id), "0x2809b50b42F0F6a7183239416cfB19f27EA8A412"]
+        [BigInt(proposal.id), "0x2809b50B42F0F6a7183239416cfB19f27EA8A412"]
       )
     )
   );
@@ -318,7 +318,7 @@ export function VoteDrawerContent({
       const action = hashToField(
         encodePacked(
           ["uint256", "address"],
-          [BigInt(proposal.id), "0x2809b50b42F0F6a7183239416cfB19f27EA8A412"]
+          [BigInt(proposal.id), "0x2809b50B42F0F6a7183239416cfB19f27EA8A412"]
         )
       );
       const signal = hashToField(
