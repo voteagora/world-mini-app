@@ -308,9 +308,8 @@ export function VoteDrawerContent({
         return;
       }
 
-      const action = String(
-        encodeAbiParameters([{ type: "uint256" }], [BigInt(proposal.id)])
-      );
+      const action =
+        "12880648283418826520205873440470303293801775304823474445508074396177019307493";
       const signal = hashToField(
         encodePacked(
           ["address", "uint256", "uint8"],
