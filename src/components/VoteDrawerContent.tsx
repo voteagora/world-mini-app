@@ -311,9 +311,11 @@ export function VoteDrawerContent({
       const action = String(
         encodeAbiParameters([{ type: "uint256" }], [BigInt(proposal.id)])
       );
-      const signal = encodePacked(
-        ["address", "uint256", "uint8"],
-        [walletAddress as `0x${string}`, BigInt(proposal.id), supportValue]
+      const signal = hashToField(
+        encodePacked(
+          ["address", "uint256", "uint8"],
+          [walletAddress as `0x${string}`, BigInt(proposal.id), supportValue]
+        )
       );
       logger.log("handleSubmitVote: World ID verification params:", {
         action,
@@ -324,7 +326,7 @@ export function VoteDrawerContent({
         logger.log("handleSubmitVote: Calling MiniKit.commandsAsync.verify");
         const result = await MiniKit.commandsAsync.verify({
           action,
-          signal,
+          signal: signal.toString(),
           verification_level: VerificationLevel.Orb,
         });
 
