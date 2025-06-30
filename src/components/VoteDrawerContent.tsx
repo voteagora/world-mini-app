@@ -308,8 +308,7 @@ export function VoteDrawerContent({
         return;
       }
 
-      const action =
-        "12880648283418826520205873440470303293801775304823474445508074396177019307493";
+      const action = "2025-06-30";
       const signal = hashToField(
         encodePacked(
           ["address", "uint256", "uint8"],
