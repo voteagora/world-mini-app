@@ -88,15 +88,6 @@ export function VoteDrawerContent({
 
   const handleWorldIDSuccess = async (result: ISuccessResult) => {
     logger.log("handleWorldIDSuccess: Starting with result:", result);
-    logger.log(
-      "action",
-      hashToField(
-        encodePacked(
-          ["uint256", "address"],
-          [BigInt(proposal.id), "0x2809b50B42F0F6a7183239416cfB19f27EA8A412"]
-        )
-      )
-    );
     setIsVerifying(true);
     setVoteError(null);
     logger.log("handleWorldIDSuccess: Set isVerifying=true, cleared voteError");
@@ -308,10 +299,7 @@ export function VoteDrawerContent({
         return;
       }
 
-      const action = encodeAbiParameters(
-        [{ name: "proposalId", type: "uint256" }],
-        [BigInt(proposal.id)]
-      );
+      const action = "2025-07-01";
       const signal = hashToField(
         encodePacked(
           ["address", "uint256", "uint8"],
