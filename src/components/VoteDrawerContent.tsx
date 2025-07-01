@@ -308,7 +308,7 @@ export function VoteDrawerContent({
         return;
       }
 
-      const action = "2025-06-30";
+      const action = proposal.id;
       const signal = hashToField(
         encodePacked(
           ["address", "uint256", "uint8"],
