@@ -23,6 +23,7 @@ import {
   createPublicClient,
   decodeAbiParameters,
   encodeAbiParameters,
+  encodePacked,
   // encodePacked,
   http,
   // keccak256,
@@ -300,7 +301,10 @@ export function VoteDrawerContent({
       }
 
       const action = "2025-07-01";
-      const signal = walletAddress;
+      const signal = encodePacked(
+        ["address", "uint256", "uint8"],
+        [walletAddress as `0x${string}`, BigInt(proposal.id), supportValue]
+      );
       logger.log("handleSubmitVote: World ID verification params:", {
         action,
         signal,
