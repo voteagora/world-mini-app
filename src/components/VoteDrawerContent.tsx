@@ -300,12 +300,7 @@ export function VoteDrawerContent({
       }
 
       const action = "2025-07-01";
-      const signal = hashToField(
-        encodePacked(
-          ["address", "uint256", "uint8"],
-          [walletAddress as `0x${string}`, BigInt(proposal.id), supportValue]
-        )
-      );
+      const signal = walletAddress;
       logger.log("handleSubmitVote: World ID verification params:", {
         action,
         signal,
