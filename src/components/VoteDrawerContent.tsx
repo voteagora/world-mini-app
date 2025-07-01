@@ -308,7 +308,10 @@ export function VoteDrawerContent({
         return;
       }
 
-      const action = proposal.id;
+      const action = encodeAbiParameters(
+        [{ name: "proposalId", type: "uint256" }],
+        [BigInt(proposal.id)]
+      );
       const signal = hashToField(
         encodePacked(
           ["address", "uint256", "uint8"],
