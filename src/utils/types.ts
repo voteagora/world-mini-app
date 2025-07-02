@@ -74,7 +74,6 @@ export interface VoteHistoryItem {
   voter: string;
   proposal_id: string;
   support: number;
-  weight: number;
   bn: string;
   tid: number;
   lid: number;
@@ -102,7 +101,6 @@ export interface FormattedVoterHistoryResponse {
 export interface VoteRecordItem {
   voter: string;
   support: number;
-  weight: number;
   bn: string;
   tid: number;
   lid: number;

@@ -1,6 +1,7 @@
 "use server";
 
 import {
+  FormattedVoteHistoryItem,
   FormattedVoterHistoryResponse,
   Proposal,
   ProposalData,
@@ -195,10 +196,14 @@ export const getVotesForDelegateFromDaoNode = async (
 
   const allProposals = await getAllProposalsFromDaoNode();
 
-  const formattedVotes = data.voter_history.map((vote) => {
+  let formattedVotes: FormattedVoteHistoryItem[] = [];
+
+  for (const vote of data.voter_history) {
     const proposal = allProposals.find((p) => p.id === vote.proposal_id);
-    return formatVoteHistoryItem(vote, proposal, currentBlock);
-  });
+    if (proposal) {
+      formattedVotes.push(formatVoteHistoryItem(vote, proposal, currentBlock));
+    }
+  }
 
   return {
     voter_history: formattedVotes,

@@ -1,9 +1,7 @@
 import { Marble, Typography } from "@worldcoin/mini-apps-ui-kit-react";
-import { MiniKit } from "@worldcoin/minikit-js";
 import Link from "next/link";
 import { twMerge } from "tailwind-merge";
-import { useInView } from "react-intersection-observer";
-import { useQuery } from "@tanstack/react-query";
+import { getUserByAddress } from "@/lib/server-utils";
 
 interface UserVoteItemProps {
   address: string;
@@ -12,27 +10,24 @@ interface UserVoteItemProps {
   proposalType: string;
 }
 
-export function UserVoteItem({
+export async function UserVoteItem({
   address,
   support,
   params,
   proposalType,
 }: UserVoteItemProps) {
-  const { ref, inView } = useInView({
-    triggerOnce: true,
-    threshold: 0.1,
-  });
-  const { data: user } = useQuery({
-    queryKey: ["user", address],
-    queryFn: () => MiniKit.getUserByAddress(address),
-    enabled: inView,
-  });
+  const user = await getUserByAddress(address);
+  if (!user || !user.username) return null;
+
   return (
-    <Link ref={ref} href={`/delegate/${user?.username ?? address}`}>
+    <Link href={`/delegate/${user?.username ?? address}`}>
       <div className="flex items-center gap-2">
         <Marble
           className="w-12 h-12 rounded-full flex-shrink-0"
-          src="https://mini-apps-ui-kit.vercel.app/assets/marble1-CnGkEX-1.png"
+          src={
+            user?.profilePictureUrl ??
+            "https://mini-apps-ui-kit.vercel.app/assets/marble1-CnGkEX-1.png"
+          }
         />
         <div className="flex flex-col flex-1">
           <Typography

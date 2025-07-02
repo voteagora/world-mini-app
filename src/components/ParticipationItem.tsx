@@ -27,7 +27,7 @@ export function ParticipationItem({
         !isFirst ? "border-t border-gray-800 pt-4" : ""
       }`}
     >
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2 flex-1">
         <div className="flex flex-col flex-1">
           <Typography
             variant="subtitle"

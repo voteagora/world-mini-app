@@ -15,7 +15,7 @@ export default async function Proposals() {
   const proposals = await getAllProposalsFromDaoNode();
   const session = await auth();
   const delegate = await getVotesForDelegateFromDaoNode(
-    session?.user.walletAddress
+    session?.user.walletAddress?.toLowerCase()
   );
   const votes = delegate?.voter_history;
 
