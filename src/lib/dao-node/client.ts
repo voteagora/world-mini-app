@@ -196,7 +196,7 @@ export const getVotesForDelegateFromDaoNode = async (
 
   const allProposals = await getAllProposalsFromDaoNode();
 
-  let formattedVotes: FormattedVoteHistoryItem[] = [];
+  const formattedVotes: FormattedVoteHistoryItem[] = [];
 
   for (const vote of data.voter_history) {
     const proposal = allProposals.find((p) => p.id === vote.proposal_id);
