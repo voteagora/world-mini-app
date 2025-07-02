@@ -24,9 +24,7 @@ import {
   decodeAbiParameters,
   encodeAbiParameters,
   encodePacked,
-  // encodePacked,
   http,
-  // keccak256,
   parseAbi,
 } from "viem";
 import { useWaitForTransactionReceipt } from "@worldcoin/minikit-react";
@@ -36,11 +34,6 @@ import { logger } from "@/lib/logger";
 const governorAbi = parseAbi([
   "function castVoteWithReasonAndParams(uint256 proposalId, uint8 support, string reason, bytes params) external returns (uint256)",
 ]);
-
-// const hashToField = (value: `0x${string}`): bigint => {
-//   const hash = keccak256(value);
-//   return BigInt(hash) >> BigInt(8);
-// };
 
 interface VoteDrawerContentProps {
   proposal: ProposalData;
@@ -300,7 +293,7 @@ export function VoteDrawerContent({
         return;
       }
 
-      const action = encodePacked(["uint256"], [BigInt(proposal.id)]);
+      const action = proposal.title;
       const signal = encodePacked(
         ["address", "uint256", "uint8"],
         [walletAddress as `0x${string}`, BigInt(proposal.id), supportValue]
