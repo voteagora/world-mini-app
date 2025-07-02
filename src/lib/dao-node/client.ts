@@ -130,10 +130,7 @@ export const getAllProposalsFromDaoNode = unstable_cache(
         : [];
 
       const filteredProposalsArray = proposalsArray.filter(
-        (proposal) =>
-          !!proposal.voting_module_name ||
-          proposal.id ===
-            "22416931598545328695907484969781188181434407252658241100515969212422841110296"
+        (proposal) => !!proposal.voting_module_name
       );
 
       const sortedProposalsArray = filteredProposalsArray.sort((a, b) => {
