@@ -6,7 +6,8 @@ export async function setNotificationPreferences(
 ) {
   try {
     const apiKey = process.env.AGORA_API_KEY;
-    if (!apiKey) {
+    const bypass = process.env.VERCEL_AUTOMATION_BYPASS_SECRET;
+    if (!apiKey || !address || !bypass) {
       throw new Error("AGORA_API_KEY not configured");
     }
 
@@ -17,6 +18,7 @@ export async function setNotificationPreferences(
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${apiKey}`,
+          "x-vercel-protection-bypass": bypass,
         },
         body: JSON.stringify({
           address,
