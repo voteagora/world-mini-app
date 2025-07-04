@@ -94,9 +94,17 @@ export const calculatePercentages = (
         totalVotes += numAmount;
       });
     } else {
-      const numAmount = parseInt(value as string) || 0;
-      voteAmounts[key] = numAmount;
-      totalVotes += numAmount;
+      if (typeof value === "object" && value !== null) {
+        Object.entries(value).forEach(([subKey, amount]) => {
+          const numAmount = parseInt(amount as string) || 0;
+          voteAmounts[subKey] = numAmount;
+          totalVotes += numAmount;
+        });
+      } else {
+        const numAmount = parseInt(value as string) || 0;
+        voteAmounts[key] = numAmount;
+        totalVotes += numAmount;
+      }
     }
   });
 
@@ -153,7 +161,8 @@ export const getProposalStatus = (
 export const formatVoteHistoryItem = (
   vote: VoteHistoryItem,
   proposal: ProposalData | undefined,
-  currentBlock: bigint
+  currentBlock: bigint,
+  options: string[]
 ): FormattedVoteHistoryItem => {
   const proposalName = proposal
     ? getTitleFromProposalDescription(proposal.description) ||
@@ -173,12 +182,8 @@ export const formatVoteHistoryItem = (
 
     if (vote.proposal_type?.name?.includes("Approval") && vote.params) {
       const selectedPercentages = vote.params.map((paramIndex: number) => {
-        const optionKeys = Object.keys(allVotes).filter((key) =>
-          isNaN(parseInt(key))
-        );
-        const optionKey = optionKeys[paramIndex];
-        return optionKey
-          ? parseFloat(allVotes[optionKey]?.percentage || "0")
+        return allVotes[paramIndex.toString()]
+          ? parseFloat(allVotes[paramIndex.toString()].percentage || "0")
           : 0;
       });
       const totalPercentage = selectedPercentages.reduce(
@@ -196,7 +201,8 @@ export const formatVoteHistoryItem = (
   const { support, params } = formatVoteSupport(
     vote.support,
     vote.proposal_type?.name || "",
-    vote.params
+    vote.params,
+    options
   );
 
   return {
