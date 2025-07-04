@@ -94,9 +94,17 @@ export const calculatePercentages = (
         totalVotes += numAmount;
       });
     } else {
-      const numAmount = parseInt(value as string) || 0;
-      voteAmounts[key] = numAmount;
-      totalVotes += numAmount;
+      if (typeof value === "object" && value !== null) {
+        Object.entries(value).forEach(([subKey, amount]) => {
+          const numAmount = parseInt(amount as string) || 0;
+          voteAmounts[subKey] = numAmount;
+          totalVotes += numAmount;
+        });
+      } else {
+        const numAmount = parseInt(value as string) || 0;
+        voteAmounts[key] = numAmount;
+        totalVotes += numAmount;
+      }
     }
   });
 

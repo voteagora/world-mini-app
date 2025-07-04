@@ -38,19 +38,21 @@ const transformProposalToProposalData = async (
 
   const allVotes = calculatePercentages(proposal.totals);
   const votes: { [key: string]: { amount: string; percentage: string } } = {};
+  let options: string[] = [];
 
   if (proposalType === "standard") {
     votes.for = allVotes["1"] || { amount: "0", percentage: "0%" };
     votes.against = allVotes["0"] || { amount: "0", percentage: "0%" };
     votes.abstain = allVotes["2"] || { amount: "0", percentage: "0%" };
   } else if (proposalType === "approval") {
-    const options = proposal.decoded_proposal_data[0]?.map((option: string) => [
-      option?.replace(/^\[|\]$/g, ""),
-    ]);
+    options = proposal.decoded_proposal_data[0]
+      ?.map((option: string) => [option?.replace(/^\[|\]$/g, "")])
+      ?.flat();
 
     Object.entries(allVotes).forEach(([key, value]) => {
-      if (isNaN(parseInt(key))) {
-        votes[key] = value;
+      const index = parseInt(key);
+      if (index < options.length) {
+        votes[options[index]] = value;
       }
     });
 
@@ -68,11 +70,9 @@ const transformProposalToProposalData = async (
 
     let params: string[] | undefined;
     if (proposalType === "approval" && vote.params) {
-      const optionKeys = Object.keys(allVotes).filter((key) =>
-        isNaN(parseInt(key))
-      );
-      params = vote.params.map((paramIndex: number) => {
-        return optionKeys[paramIndex] || `Option ${paramIndex}`;
+      params = Object.keys(allVotes).map((key) => {
+        const index = parseInt(key);
+        return options[index] || `Option ${index}`;
       });
     }
 
@@ -83,13 +83,6 @@ const transformProposalToProposalData = async (
       params,
     };
   });
-
-  const options =
-    proposalType === "approval"
-      ? proposal.decoded_proposal_data[0]?.map((option: string) => [
-          option?.replace(/^\[|\]$/g, ""),
-        ])
-      : [];
 
   const settings =
     proposalType === "approval" ? proposal.decoded_proposal_data[1] : null;
