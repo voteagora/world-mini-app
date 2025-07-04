@@ -1,5 +1,5 @@
 import { Page } from "@/components/PageLayout";
-import { AuthButton } from "../components/AuthButton";
+// import { AuthButton } from "../components/AuthButton";
 import {
   BulletListItem,
   CircularIcon,
@@ -8,6 +8,7 @@ import {
 import { BulletList } from "@worldcoin/mini-apps-ui-kit-react";
 import { Community, Globe, Shield } from "iconoir-react";
 import Image from "next/image";
+import { WaitlistButton } from "@/components/WaitlistButton";
 
 export default function Home() {
   return (
@@ -72,7 +73,8 @@ export default function Home() {
             <div className="h-6 w-px bg-gray-900"></div>
             <img src="/agora-logo.svg" alt="Agora" />
           </div>
-          <AuthButton />
+          <WaitlistButton />
+          {/* <AuthButton /> */}
         </div>
       </Page.Main>
     </Page>
