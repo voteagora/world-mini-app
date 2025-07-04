@@ -161,7 +161,8 @@ export const getProposalStatus = (
 export const formatVoteHistoryItem = (
   vote: VoteHistoryItem,
   proposal: ProposalData | undefined,
-  currentBlock: bigint
+  currentBlock: bigint,
+  options: string[]
 ): FormattedVoteHistoryItem => {
   const proposalName = proposal
     ? getTitleFromProposalDescription(proposal.description) ||
@@ -181,12 +182,8 @@ export const formatVoteHistoryItem = (
 
     if (vote.proposal_type?.name?.includes("Approval") && vote.params) {
       const selectedPercentages = vote.params.map((paramIndex: number) => {
-        const optionKeys = Object.keys(allVotes).filter((key) =>
-          isNaN(parseInt(key))
-        );
-        const optionKey = optionKeys[paramIndex];
-        return optionKey
-          ? parseFloat(allVotes[optionKey]?.percentage || "0")
+        return allVotes[paramIndex.toString()]
+          ? parseFloat(allVotes[paramIndex.toString()].percentage || "0")
           : 0;
       });
       const totalPercentage = selectedPercentages.reduce(
@@ -204,7 +201,8 @@ export const formatVoteHistoryItem = (
   const { support, params } = formatVoteSupport(
     vote.support,
     vote.proposal_type?.name || "",
-    vote.params
+    vote.params,
+    options
   );
 
   return {
