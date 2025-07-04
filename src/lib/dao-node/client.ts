@@ -194,7 +194,9 @@ export const getVotesForDelegateFromDaoNode = async (
   for (const vote of data.voter_history) {
     const proposal = allProposals.find((p) => p.id === vote.proposal_id);
     if (proposal) {
-      formattedVotes.push(formatVoteHistoryItem(vote, proposal, currentBlock));
+      formattedVotes.push(
+        formatVoteHistoryItem(vote, proposal, currentBlock, proposal.options)
+      );
     }
   }
 
