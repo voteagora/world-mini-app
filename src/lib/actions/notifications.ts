@@ -12,7 +12,7 @@ export async function setNotificationPreferences(
     }
 
     const response = await fetch(
-      "https://agora-next-world-git-pedro-world-voteagora.vercel.app/api/common/notifications/preferences",
+      "https://agora-next-world.vercel.app/api/common/notifications/preferences",
       {
         method: "POST",
         headers: {
