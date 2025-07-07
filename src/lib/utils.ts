@@ -96,7 +96,7 @@ export const calculatePercentages = (
     } else {
       if (typeof value === "object" && value !== null) {
         let totalForOption = 0;
-        Object.entries(value).forEach(([subKey, amount]) => {
+        Object.entries(value).forEach(([, amount]) => {
           const numAmount = parseInt(amount as string) || 0;
           totalForOption += numAmount;
         });
