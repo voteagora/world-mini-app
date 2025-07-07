@@ -42,7 +42,7 @@ export default function About() {
             vote on World proposals is cast by a verified human, providing
             sybil-resistant participation.
           </Typography>
-          <Link href="https://world.org/pt-br/worldvote">
+          <Link href="https://world.org/worldvote">
             <span className="underline font-bold">Learn more</span>
           </Link>
         </div>

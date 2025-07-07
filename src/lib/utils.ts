@@ -95,11 +95,13 @@ export const calculatePercentages = (
       });
     } else {
       if (typeof value === "object" && value !== null) {
+        let totalForOption = 0;
         Object.entries(value).forEach(([subKey, amount]) => {
           const numAmount = parseInt(amount as string) || 0;
-          voteAmounts[subKey] = numAmount;
-          totalVotes += numAmount;
+          totalForOption += numAmount;
         });
+        voteAmounts[key] = totalForOption;
+        totalVotes += totalForOption;
       } else {
         const numAmount = parseInt(value as string) || 0;
         voteAmounts[key] = numAmount;
@@ -165,8 +167,7 @@ export const formatVoteHistoryItem = (
   options: string[]
 ): FormattedVoteHistoryItem => {
   const proposalName = proposal
-    ? getTitleFromProposalDescription(proposal.description) ||
-      "Untitled Proposal"
+    ? proposal.title || "Untitled Proposal"
     : `Proposal ${vote.proposal_id}`;
 
   const blockNumber = BigInt(vote.bn);
