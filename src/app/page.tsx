@@ -13,7 +13,7 @@ import { WaitlistButton } from "@/components/WaitlistButton";
 export default function Home() {
   return (
     <Page>
-      <Page.Main className="flex flex-col items-between justify-center mt-20 mb-8">
+      <Page.Main className="flex flex-col items-between justify-center mt-20 mb-4">
         <div className="w-full flex flex-col items-start justify-center">
           <Image
             width={88}
@@ -27,7 +27,7 @@ export default function Home() {
             variant="heading"
             level={1}
           >
-            Verified votes. <br /> Securely onchain.
+            Verified voting. <br /> Secure and sybil-resistant.
           </Typography>
           <BulletList>
             <BulletListItem
@@ -38,8 +38,8 @@ export default function Home() {
                 </CircularIcon>
               }
             >
-              Vote on World Foundation proposals for World ID-verified users
-              only.
+              Vote on experimental World community proposals with one-person,
+              one-vote voting.
             </BulletListItem>
 
             <BulletListItem
@@ -50,8 +50,7 @@ export default function Home() {
                 </CircularIcon>
               }
             >
-              Shape the future by influencing key proposals and community
-              decisions.
+              For World ID-verified users to explore new forms of participation.
             </BulletListItem>
 
             <BulletListItem
@@ -62,13 +61,13 @@ export default function Home() {
                 </CircularIcon>
               }
             >
-              All votes are public and recorded, making governance fair and
-              accessible to everyone.
+              All votes are verified and immutable, showcasing how human-first,
+              sybil-resistant voting can work in practice.
             </BulletListItem>
           </BulletList>
         </div>
         <div className="w-full flex flex-col items-center justify-center mt-auto">
-          <div className="flex gap-4 items-center justify-center mb-8">
+          <div className="flex gap-4 items-center justify-center mb-4">
             <img src="/world-logo.svg" alt="World" />
             <div className="h-6 w-px bg-gray-900"></div>
             <img src="/agora-logo.svg" alt="Agora" />
