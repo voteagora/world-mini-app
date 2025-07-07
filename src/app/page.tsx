@@ -39,7 +39,7 @@ export default function Home() {
               }
             >
               Vote on experimental World community proposals with one-person,
-              one-vote voting.
+              one-vote.
             </BulletListItem>
 
             <BulletListItem
