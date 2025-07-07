@@ -27,7 +27,7 @@ export default function Home() {
             variant="heading"
             level={1}
           >
-            Verified voting. <br /> Secure and sybil-resistant.
+            Verified, secure digital governance
           </Typography>
           <BulletList>
             <BulletListItem
