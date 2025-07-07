@@ -18,6 +18,7 @@ import {
   getVotesForDelegateFromDaoNode,
 } from "@/lib/dao-node/client";
 import { auth } from "@/auth";
+import { revalidateTag } from "next/cache";
 
 export default async function ProposalPage({
   params,
@@ -35,6 +36,11 @@ export default async function ProposalPage({
   }
   const proposalStatus = proposal.status;
   const proposalType = proposal.type;
+
+  const revalidate = async () => {
+    "use server";
+    revalidateTag("proposals");
+  };
 
   return (
     <>
@@ -306,6 +312,7 @@ export default async function ProposalPage({
               (vote) => vote.proposalId === proposal_id
             )}
             walletAddress={session?.user.walletAddress ?? ""}
+            revalidate={revalidate}
           />
         ) : (
           <Button className="w-full py-2" variant="primary" size="lg" disabled>

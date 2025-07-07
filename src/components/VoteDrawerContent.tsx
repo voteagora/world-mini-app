@@ -41,6 +41,7 @@ interface VoteDrawerContentProps {
   voteState: string | null;
   setVoteState: Dispatch<SetStateAction<string | null>>;
   walletAddress: string;
+  revalidate: () => void;
 }
 
 export function VoteDrawerContent({
@@ -49,6 +50,7 @@ export function VoteDrawerContent({
   voteState,
   setVoteState,
   walletAddress,
+  revalidate,
 }: VoteDrawerContentProps) {
   const [voteStep, setVoteStep] = useState(1);
   const [reason, setReason] = useState("");
@@ -73,12 +75,13 @@ export function VoteDrawerContent({
   useEffect(() => {
     if (isSuccess) {
       setVoteState("success");
+      revalidate();
     }
     if (isError) {
       setVoteError(error?.message || "An unexpected error occurred");
       setVoteState("failure");
     }
-  }, [isSuccess, isError, error, setVoteState, setVoteError]);
+  }, [isSuccess, isError, error, setVoteState, setVoteError, revalidate]);
 
   const handleWorldIDSuccess = async (result: ISuccessResult) => {
     logger.log("handleWorldIDSuccess: Starting with result:", result);
@@ -99,6 +102,7 @@ export function VoteDrawerContent({
           "handleWorldIDSuccess: Vote successful, setting state to success"
         );
         setVoteState("success");
+        revalidate();
       } else {
         const errorMsg =
           signResult.finalPayload.error_code || "Failed to submit vote";
@@ -195,6 +199,7 @@ export function VoteDrawerContent({
 
     if (signResult.finalPayload.status === "success") {
       setTxHash(signResult.finalPayload.transaction_id);
+      revalidate();
     }
 
     return signResult;
@@ -336,6 +341,7 @@ export function VoteDrawerContent({
     } else {
       logger.log("handleSubmitVote: Window undefined, setting success state");
       setVoteState("success");
+      revalidate();
     }
   };
 
@@ -526,10 +532,12 @@ export const VoteDrawerContentWrapper = ({
   proposal,
   hasVoted = false,
   walletAddress,
+  revalidate,
 }: {
   proposal: ProposalData;
   hasVoted?: boolean;
   walletAddress: string;
+  revalidate: () => void;
 }) => {
   const [voteState, setVoteState] = useState<string | null>(
     hasVoted ? "success" : null
@@ -557,6 +565,7 @@ export const VoteDrawerContentWrapper = ({
             voteState={voteState}
             setVoteState={setVoteState}
             walletAddress={walletAddress}
+            revalidate={revalidate}
           />
         </Page.Main>
       </DrawerContent>
