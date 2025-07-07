@@ -3,6 +3,7 @@
 "use client";
 import { getNewNonces } from "@/auth/wallet/server-helpers";
 import { setNotificationPreferences } from "@/lib/actions/notifications";
+import { logger } from "@/lib/logger";
 import { useQuery } from "@tanstack/react-query";
 import { Button, LiveFeedback } from "@worldcoin/mini-apps-ui-kit-react";
 import { MiniKit, Permission } from "@worldcoin/minikit-js";
@@ -58,11 +59,11 @@ export const WaitlistButton = ({
         await setNotificationPreferences(address as `0x${string}`, true);
         setIsSuccess(true);
       } else {
-        console.error("Failed to join waitlist", payload);
+        logger.error("Failed to join waitlist", payload);
         setIsError(true);
       }
     } catch (error) {
-      console.error("Failed to join waitlist", error);
+      logger.error("Failed to join waitlist", error);
       setIsError(true);
     } finally {
       setIsPending(false);
