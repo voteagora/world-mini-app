@@ -13,7 +13,7 @@ import { WaitlistButton } from "@/components/WaitlistButton";
 export default function Home() {
   return (
     <Page>
-      <Page.Main className="flex flex-col items-between justify-center mt-20 mb-4">
+      <Page.Main className="flex flex-col items-between justify-center mt-12 mb-4">
         <div className="w-full flex flex-col items-start justify-center">
           <Image
             width={88}
