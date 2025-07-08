@@ -4,7 +4,6 @@
 import { getNewNonces } from "@/auth/wallet/server-helpers";
 import { setNotificationPreferences } from "@/lib/actions/notifications";
 import { logger } from "@/lib/logger";
-import { useQuery } from "@tanstack/react-query";
 import {
   Button,
   LiveFeedback,
@@ -23,17 +22,6 @@ export const WaitlistButton = ({
   const [isError, setIsError] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [walletAddress, setWalletAddress] = useState(initialWalletAddress);
-
-  const { data } = useQuery({
-    queryKey: ["permissions"],
-    queryFn: async () => {
-      const permissions: any = await MiniKit.commandsAsync.getPermissions();
-      return permissions.finalPayload?.permissions;
-    },
-    enabled: !!walletAddress,
-  });
-
-  const isOnWaitlist = data?.notifications;
 
   const onClick = async () => {
     setIsPending(true);
@@ -103,11 +91,11 @@ export const WaitlistButton = ({
       >
         <Button
           onClick={onClick}
-          disabled={isPending || isSuccess || isOnWaitlist}
+          disabled={isPending || isSuccess}
           className="w-full"
           variant="primary"
         >
-          {isSuccess || isOnWaitlist
+          {isSuccess
             ? "Joined waitlist"
             : isError
             ? "Failed to join waitlist, try again"
