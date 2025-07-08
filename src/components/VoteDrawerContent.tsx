@@ -78,10 +78,9 @@ export function VoteDrawerContent({
       revalidate();
     }
     if (isError) {
-      setVoteError(error?.message || "An unexpected error occurred");
       setVoteState("failure");
     }
-  }, [isSuccess, isError, error, setVoteState, setVoteError, revalidate]);
+  }, [isSuccess, isError, error, setVoteState, revalidate]);
 
   const handleWorldIDSuccess = async (result: ISuccessResult) => {
     logger.log("handleWorldIDSuccess: Starting with result:", result);
@@ -107,7 +106,6 @@ export function VoteDrawerContent({
         const errorMsg =
           signResult.finalPayload.error_code || "Failed to submit vote";
         logger.log("handleWorldIDSuccess: Vote failed with error:", errorMsg);
-        setVoteError(errorMsg);
         setVoteState("failure");
       }
     } catch (error: any) {
@@ -117,7 +115,6 @@ export function VoteDrawerContent({
         "handleWorldIDSuccess: Setting error state with message:",
         errorMsg
       );
-      setVoteError(errorMsg);
       setVoteState("failure");
     } finally {
       logger.log("handleWorldIDSuccess: Setting isVerifying=false");
@@ -293,7 +290,6 @@ export function VoteDrawerContent({
 
       if (!process.env.NEXT_PUBLIC_APP_ID) {
         logger.error("handleSubmitVote: Missing NEXT_PUBLIC_APP_ID");
-        setVoteError("App configuration error - missing World App ID");
         setVoteState("failure");
         return;
       }
@@ -330,12 +326,10 @@ export function VoteDrawerContent({
             "handleSubmitVote: World ID verification failed:",
             errorMsg
           );
-          setVoteError(errorMsg);
           setVoteState("failure");
         }
       } catch (error: any) {
         logger.error("handleSubmitVote: World ID verification error:", error);
-        setVoteError(error.message || "World ID verification failed");
         setVoteState("failure");
       }
     } else {
@@ -401,10 +395,6 @@ export function VoteDrawerContent({
   }
 
   if (voteState === "failure") {
-    logger.log(
-      "VoteDrawerContent: Rendering failure state with error:",
-      voteError
-    );
     return (
       <div className="flex flex-col gap-2 items-center justify-center h-full pt-0 mt-0">
         <CircularIcon size="xl" className="bg-red-600 mb-6">
@@ -425,7 +415,7 @@ export function VoteDrawerContent({
           className="text-gray-500 text-center max-w-sm px-4"
         >
           {voteError ||
-            "Your vote has failed to be submitted. Please try again."}
+            "Your vote has failed to be submitted. If the problem persists, please contact support at pedro@voteagora.com"}
         </Typography>
         <Button
           variant="secondary"
