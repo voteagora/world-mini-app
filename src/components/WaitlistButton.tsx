@@ -40,13 +40,6 @@ export const WaitlistButton = ({
     try {
       let address = walletAddress;
       if (!address) {
-        const permissions: any = await MiniKit.commandsAsync.getPermissions();
-        const isOnWaitlist =
-          permissions.finalPayload?.permissions?.notifications;
-        if (isOnWaitlist) {
-          setIsSuccess(true);
-          return;
-        }
         const { nonce } = await getNewNonces();
         const result = await MiniKit.commandsAsync.walletAuth({
           nonce,
@@ -56,6 +49,16 @@ export const WaitlistButton = ({
         });
         address = (result.finalPayload as any).address;
         setWalletAddress(address);
+      }
+      const permissions: any = await MiniKit.commandsAsync.getPermissions();
+      const isOnWaitlist = permissions.finalPayload?.permissions?.notifications;
+      if (isOnWaitlist) {
+        await setNotificationPreferences(address as `0x${string}`, true);
+        setIsSuccess(true);
+        setIsError(false);
+        setErrorMessage(null);
+        setIsPending(false);
+        return;
       }
       const payload = await MiniKit.commandsAsync.requestPermission({
         permission: Permission.Notifications,
