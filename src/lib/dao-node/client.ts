@@ -70,10 +70,7 @@ const transformProposalToProposalData = async (
 
     let params: string[] | undefined;
     if (proposalType === "approval" && vote.params) {
-      params = Object.keys(allVotes).map((key) => {
-        const index = parseInt(key);
-        return options[index] || `Option ${index}`;
-      });
+      params = vote.params.map((param) => options[param]);
     }
 
     return {
@@ -208,7 +205,9 @@ export const getVotesForDelegateFromDaoNode = async (
 export const getVotesForProposalFromDaoNode = async (
   proposalId: string
 ): Promise<VoteRecordResponse> => {
-  const response = await fetch(`${url}v1/vote_record/${proposalId}`);
+  const response = await fetch(
+    `${url}v1/vote_record/${proposalId}?reverse=true`
+  );
   const data = await response.json();
   return data;
 };

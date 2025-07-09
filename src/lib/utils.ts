@@ -124,14 +124,13 @@ export const calculatePercentages = (
 
 export const formatVoteSupport = (
   support: number,
-  proposalType: string,
   params?: number[],
   optionKeys?: string[]
 ): { support: string; params: string[] } => {
   let formattedSupport: string;
   let formattedParams: string[] = [];
 
-  if (proposalType.includes("Approval") && params) {
+  if (params?.length) {
     formattedParams = params.map(
       (p: number) => optionKeys?.[p] || `Option ${p}`
     );
@@ -181,7 +180,7 @@ export const formatVoteHistoryItem = (
   if (proposal) {
     const allVotes = calculatePercentages(proposal.totals);
 
-    if (vote.proposal_type?.name?.includes("Approval") && vote.params) {
+    if (vote.params?.length) {
       const selectedPercentages = vote.params.map((paramIndex: number) => {
         return allVotes[paramIndex.toString()]
           ? parseFloat(allVotes[paramIndex.toString()].percentage || "0")
@@ -201,7 +200,6 @@ export const formatVoteHistoryItem = (
 
   const { support, params } = formatVoteSupport(
     vote.support,
-    vote.proposal_type?.name || "",
     vote.params,
     options
   );
