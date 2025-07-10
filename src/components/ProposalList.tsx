@@ -16,6 +16,13 @@ const ProposalCard = ({ proposal }: { proposal: ProposalData }) => {
       : proposal.status === "executed"
       ? "Executed"
       : "Past";
+
+  const sortedOptions = proposal.options.sort((a, b) => {
+    const aIndex = Number(proposal.votes[a]?.amount ?? 0);
+    const bIndex = Number(proposal.votes[b]?.amount ?? 0);
+    return bIndex - aIndex;
+  });
+
   return (
     <Link
       href={`/proposals/${proposal.id}`}
@@ -106,7 +113,7 @@ const ProposalCard = ({ proposal }: { proposal: ProposalData }) => {
                     className="h-1.5 text-green-600 bg-gray-900"
                   />
                   <div className="flex flex-col gap-3 mt-3">
-                    {proposal.options.slice(0, 2).map((option, index) => (
+                    {sortedOptions.slice(0, 2).map((option, index) => (
                       <div
                         key={option}
                         className="flex justify-between text-sm"

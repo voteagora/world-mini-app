@@ -1,0 +1,22 @@
+[
+  {
+    "fileName": "main-overview.mdc",
+    "description": "Complete system overview documenting the core architecture, key components, and high-level workflow of the governance platform with World ID integration"
+  },
+  {
+    "fileName": "voting-system.mdc",
+    "description": "Detailed documentation of the voting system including proposal status determination algorithm, vote parameter construction, World ID verification flow, and on-chain submission process"
+  },
+  {
+    "fileName": "data-models.mdc",
+    "description": "Documentation of core data models including proposals, votes, user preferences, and their relationships, along with data transformation and formatting logic"
+  },
+  {
+    "fileName": "authentication-flow.mdc",
+    "description": "Comprehensive documentation of the custom wallet-based authentication system including nonce generation, signature verification, and session management"
+  },
+  {
+    "fileName": "dao-client.mdc",
+    "description": "Documentation of the DAO Node Client implementation including proposal/voter data fetching, caching mechanisms, and data transformation functions"
+  }
+]

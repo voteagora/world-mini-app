@@ -6,6 +6,7 @@ import {
   Proposal,
   ProposalData,
   ProposalsResponse,
+  ProposalType,
   VoteRecordResponse,
   VoterHistoryResponse,
 } from "@/utils/types";
@@ -19,6 +20,7 @@ import {
 } from "../utils";
 import { createPublicClient, http } from "viem";
 import { worldchain } from "viem/chains";
+import { addSeconds, formatDistanceToNow } from "date-fns";
 
 const url = process.env.DAONODE_URL;
 
@@ -38,19 +40,21 @@ const transformProposalToProposalData = async (
 
   const allVotes = calculatePercentages(proposal.totals);
   const votes: { [key: string]: { amount: string; percentage: string } } = {};
+  let options: string[] = [];
 
   if (proposalType === "standard") {
     votes.for = allVotes["1"] || { amount: "0", percentage: "0%" };
     votes.against = allVotes["0"] || { amount: "0", percentage: "0%" };
     votes.abstain = allVotes["2"] || { amount: "0", percentage: "0%" };
   } else if (proposalType === "approval") {
-    const options = proposal.decoded_proposal_data[0]?.map((option: string) => [
-      option?.replace(/^\[|\]$/g, ""),
-    ]);
+    options = proposal.decoded_proposal_data[0]
+      ?.map((option: string) => [option?.replace(/^\[|\]$/g, "")])
+      ?.flat();
 
     Object.entries(allVotes).forEach(([key, value]) => {
-      if (isNaN(parseInt(key))) {
-        votes[key] = value;
+      const index = parseInt(key);
+      if (index < options.length) {
+        votes[options[index]] = value;
       }
     });
 
@@ -61,6 +65,8 @@ const transformProposalToProposalData = async (
     });
   }
 
+  const proposalTypes = await getProposalTypesFromDaoNode();
+  const proposalTypeInfo = proposalTypes?.[proposal.proposal_type];
   const voteRecord = await getVotesForProposalFromDaoNode(proposal.id);
   const userVotes = voteRecord.vote_record.map((vote) => {
     const support: "For" | "Against" | "Abstain" =
@@ -68,12 +74,7 @@ const transformProposalToProposalData = async (
 
     let params: string[] | undefined;
     if (proposalType === "approval" && vote.params) {
-      const optionKeys = Object.keys(allVotes).filter((key) =>
-        isNaN(parseInt(key))
-      );
-      params = vote.params.map((paramIndex: number) => {
-        return optionKeys[paramIndex] || `Option ${paramIndex}`;
-      });
+      params = vote.params.map((param) => options[param]);
     }
 
     return {
@@ -84,13 +85,6 @@ const transformProposalToProposalData = async (
     };
   });
 
-  const options =
-    proposalType === "approval"
-      ? proposal.decoded_proposal_data[0]?.map((option: string) => [
-          option?.replace(/^\[|\]$/g, ""),
-        ])
-      : [];
-
   const settings =
     proposalType === "approval" ? proposal.decoded_proposal_data[1] : null;
   const maxApprovals = settings?.[1] || 1;
@@ -99,10 +93,16 @@ const transformProposalToProposalData = async (
     proposal.description
   );
 
+  const blockDiff = BigInt(proposal.vote_end) - currentBlock;
+  const secondsDiff = blockDiff * BigInt(2);
+  const endsIn = formatDistanceToNow(
+    addSeconds(new Date(), Number(secondsDiff))
+  );
+
   return {
     id: proposal.id,
     type: proposalType,
-    status: getProposalStatus(proposal, currentBlock),
+    status: getProposalStatus(proposal, currentBlock, proposalTypeInfo),
     title: getTitleFromProposalDescription(proposal.description),
     description,
     votes,
@@ -110,6 +110,7 @@ const transformProposalToProposalData = async (
     userVotes,
     totals: proposal.totals,
     maxApprovals: proposalType === "approval" ? maxApprovals : 1,
+    endsIn,
   };
 };
 
@@ -201,7 +202,9 @@ export const getVotesForDelegateFromDaoNode = async (
   for (const vote of data.voter_history) {
     const proposal = allProposals.find((p) => p.id === vote.proposal_id);
     if (proposal) {
-      formattedVotes.push(formatVoteHistoryItem(vote, proposal, currentBlock));
+      formattedVotes.push(
+        formatVoteHistoryItem(vote, proposal, currentBlock, proposal.options)
+      );
     }
   }
 
@@ -213,7 +216,21 @@ export const getVotesForDelegateFromDaoNode = async (
 export const getVotesForProposalFromDaoNode = async (
   proposalId: string
 ): Promise<VoteRecordResponse> => {
-  const response = await fetch(`${url}v1/vote_record/${proposalId}`);
+  const response = await fetch(
+    `${url}v1/vote_record/${proposalId}?reverse=true`
+  );
   const data = await response.json();
   return data;
 };
+
+export const getProposalTypesFromDaoNode = unstable_cache(
+  async (): Promise<ProposalType[]> => {
+    const response = await fetch(`${url}v1/proposal_types`);
+    const data = await response.json();
+    return data?.proposal_types;
+  },
+  ["proposal_types"],
+  {
+    revalidate: 60 * 60 * 24,
+  }
+);
