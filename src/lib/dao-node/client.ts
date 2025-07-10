@@ -20,6 +20,7 @@ import {
 } from "../utils";
 import { createPublicClient, http } from "viem";
 import { worldchain } from "viem/chains";
+import { addSeconds, formatDistanceToNow } from "date-fns";
 
 const url = process.env.DAONODE_URL;
 
@@ -92,6 +93,12 @@ const transformProposalToProposalData = async (
     proposal.description
   );
 
+  const blockDiff = BigInt(proposal.vote_end) - currentBlock;
+  const secondsDiff = blockDiff * BigInt(2);
+  const endsIn = formatDistanceToNow(
+    addSeconds(new Date(), Number(secondsDiff))
+  );
+
   return {
     id: proposal.id,
     type: proposalType,
@@ -103,6 +110,7 @@ const transformProposalToProposalData = async (
     userVotes,
     totals: proposal.totals,
     maxApprovals: proposalType === "approval" ? maxApprovals : 1,
+    endsIn,
   };
 };
 
