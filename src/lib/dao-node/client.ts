@@ -6,6 +6,7 @@ import {
   Proposal,
   ProposalData,
   ProposalsResponse,
+  ProposalType,
   VoteRecordResponse,
   VoterHistoryResponse,
 } from "@/utils/types";
@@ -63,6 +64,8 @@ const transformProposalToProposalData = async (
     });
   }
 
+  const proposalTypes = await getProposalTypesFromDaoNode();
+  const proposalTypeInfo = proposalTypes?.[proposal.proposal_type];
   const voteRecord = await getVotesForProposalFromDaoNode(proposal.id);
   const userVotes = voteRecord.vote_record.map((vote) => {
     const support: "For" | "Against" | "Abstain" =
@@ -92,7 +95,7 @@ const transformProposalToProposalData = async (
   return {
     id: proposal.id,
     type: proposalType,
-    status: getProposalStatus(proposal, currentBlock),
+    status: getProposalStatus(proposal, currentBlock, proposalTypeInfo),
     title: getTitleFromProposalDescription(proposal.description),
     description,
     votes,
@@ -211,3 +214,15 @@ export const getVotesForProposalFromDaoNode = async (
   const data = await response.json();
   return data;
 };
+
+export const getProposalTypesFromDaoNode = unstable_cache(
+  async (): Promise<ProposalType[]> => {
+    const response = await fetch(`${url}v1/proposal_types`);
+    const data = await response.json();
+    return data?.proposal_types;
+  },
+  ["proposal_types"],
+  {
+    revalidate: 60 * 60 * 24,
+  }
+);

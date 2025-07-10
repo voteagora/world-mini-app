@@ -83,23 +83,13 @@ export function VoteDrawerContent({
   }, [isSuccess, isError, error, setVoteState, revalidate]);
 
   const handleWorldIDSuccess = async (result: ISuccessResult) => {
-    logger.log("handleWorldIDSuccess: Starting with result:", result);
     setIsVerifying(true);
     setVoteError(null);
-    logger.log("handleWorldIDSuccess: Set isVerifying=true, cleared voteError");
 
     try {
-      logger.log("handleWorldIDSuccess: Calling submitVoteWithProof");
       const signResult = await submitVoteWithProof(result);
-      logger.log(
-        "handleWorldIDSuccess: submitVoteWithProof returned:",
-        signResult
-      );
 
       if (signResult.finalPayload.status === "success") {
-        logger.log(
-          "handleWorldIDSuccess: Vote successful, setting state to success"
-        );
         setVoteState("success");
         revalidate();
       } else {
@@ -110,25 +100,13 @@ export function VoteDrawerContent({
       }
     } catch (error: any) {
       logger.error("handleWorldIDSuccess: Vote submission failed:", error);
-      const errorMsg = error.message || "An unexpected error occurred";
-      logger.log(
-        "handleWorldIDSuccess: Setting error state with message:",
-        errorMsg
-      );
       setVoteState("failure");
     } finally {
-      logger.log("handleWorldIDSuccess: Setting isVerifying=false");
       setIsVerifying(false);
     }
   };
 
   const submitVoteWithProof = async (worldIdProof: ISuccessResult) => {
-    logger.log("submitVoteWithProof: Starting with proof:", {
-      verification_level: worldIdProof.verification_level,
-      merkle_root: worldIdProof.merkle_root,
-      nullifier_hash: worldIdProof.nullifier_hash,
-    });
-
     if (worldIdProof.verification_level !== VerificationLevel.Orb) {
       logger.error(
         "submitVoteWithProof: Invalid verification level:",
@@ -136,13 +114,10 @@ export function VoteDrawerContent({
       );
       throw new Error("Only Orb verification is supported");
     }
-    logger.log("submitVoteWithProof: Verification level check passed");
 
     const supportValue = getSupportValue();
-    logger.log("submitVoteWithProof: Got support value:", supportValue);
 
     const voteParamsData = getVoteParams(worldIdProof);
-    logger.log("submitVoteWithProof: Got vote params:", voteParamsData);
 
     if (!voteParamsData) {
       logger.error("submitVoteWithProof: No vote params data available");
@@ -153,18 +128,11 @@ export function VoteDrawerContent({
       logger.error("submitVoteWithProof: No wallet address available");
       throw new Error("User wallet address not available");
     }
-    logger.log("submitVoteWithProof: Using wallet address:", walletAddress);
-
-    logger.log("submitVoteWithProof: Encoding vote parameters");
-
-    logger.log("submitVoteWithProof: Proof:", voteParamsData.proof);
 
     const decodedProof = decodeAbiParameters(
       [{ name: "proof", type: "uint256[8]" }],
       voteParamsData.proof as `0x${string}`
     );
-
-    logger.log("submitVoteWithProof: Decoded proof:", decodedProof);
 
     const voteParams = encodeAbiParameters(
       [
@@ -181,7 +149,6 @@ export function VoteDrawerContent({
       ]
     );
 
-    logger.log("submitVoteWithProof: Sending transaction", voteParams);
     const signResult = await MiniKit.commandsAsync.sendTransaction({
       transaction: [
         {
@@ -203,49 +170,30 @@ export function VoteDrawerContent({
   };
 
   const getSupportValue = (): number => {
-    logger.log(
-      "getSupportValue: Called with proposalType:",
-      proposalType,
-      "selectedOptions:",
-      selectedOptions
-    );
-
     if (proposalType === "standard") {
       if (selectedOptions.includes("For")) {
-        logger.log("getSupportValue: Returning 1 for 'For'");
         return 1;
       }
       if (selectedOptions.includes("Against")) {
-        logger.log("getSupportValue: Returning 0 for 'Against'");
         return 0;
       }
       if (selectedOptions.includes("Abstain")) {
-        logger.log("getSupportValue: Returning 2 for 'Abstain'");
         return 2;
       }
     }
-    logger.log("getSupportValue: Returning default 1");
     return 1;
   };
 
   const getVoteParams = (worldIdProof?: ISuccessResult) => {
-    logger.log("getVoteParams: Called with worldIdProof:", !!worldIdProof);
-
     if (!worldIdProof) {
-      logger.log("getVoteParams: No worldIdProof provided, returning null");
       return null;
     }
 
     let options: number[] = [];
     if (proposalType === "approval" && selectedOptions.length > 0) {
-      logger.log(
-        "getVoteParams: Processing approval vote options:",
-        selectedOptions
-      );
       const optionIndices = selectedOptions
         .map((option) => proposal.options.indexOf(option))
         .filter((index) => index !== -1);
-      logger.log("getVoteParams: Option indices:", optionIndices);
       options = optionIndices;
     }
 
@@ -255,41 +203,25 @@ export function VoteDrawerContent({
       proof: worldIdProof.proof,
       options,
     };
-    logger.log("getVoteParams: Returning params:", params);
     return params;
   };
 
   const handleSubmitVote = async () => {
-    logger.log("handleSubmitVote: Called with isVerifying:", isVerifying);
-
     if (isVerifying) {
-      logger.log("handleSubmitVote: Already verifying, returning early");
       return;
     }
 
     setVoteError(null);
-    logger.log("handleSubmitVote: Cleared vote error");
 
     const supportValue = getSupportValue();
-    logger.log("handleSubmitVote: Got support value:", supportValue);
 
     if (supportValue === undefined) {
-      logger.log("handleSubmitVote: No support value, setting error");
       setVoteError("Please select a voting option");
       return;
     }
 
-    logger.log(
-      "handleSubmitVote: Initiating vote submission with World ID verification"
-    );
-
     if (typeof window !== "undefined") {
-      logger.log(
-        "handleSubmitVote: Window is defined, proceeding with World ID"
-      );
-
       if (!process.env.NEXT_PUBLIC_APP_ID) {
-        logger.error("handleSubmitVote: Missing NEXT_PUBLIC_APP_ID");
         setVoteState("failure");
         return;
       }
@@ -299,25 +231,15 @@ export function VoteDrawerContent({
         ["address", "uint256", "uint8"],
         [walletAddress as `0x${string}`, BigInt(proposal.id), supportValue]
       );
-      logger.log("handleSubmitVote: World ID verification params:", {
-        action,
-        signal,
-      });
 
       try {
-        logger.log("handleSubmitVote: Calling MiniKit.commandsAsync.verify");
         const result = await MiniKit.commandsAsync.verify({
           action,
           signal: signal.toString(),
           verification_level: VerificationLevel.Orb,
         });
 
-        logger.log("handleSubmitVote: World ID verification result:", result);
-
         if (result?.finalPayload?.status === "success") {
-          logger.log(
-            "handleSubmitVote: World ID verification successful, calling handleWorldIDSuccess"
-          );
           await handleWorldIDSuccess(result.finalPayload);
         } else {
           const errorMsg =
@@ -333,7 +255,6 @@ export function VoteDrawerContent({
         setVoteState("failure");
       }
     } else {
-      logger.log("handleSubmitVote: Window undefined, setting success state");
       setVoteState("success");
       revalidate();
     }

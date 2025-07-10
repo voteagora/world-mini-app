@@ -55,7 +55,7 @@ export default async function ProposalPage({
           }
         />
       </Page.Header>
-      <Page.Main className="flex flex-col items-start justify-start gap-4 mb-32 px-4">
+      <Page.Main className="flex flex-col items-start justify-start gap-4 mb-42 px-4">
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-2 text-gray-500">
             <Typography variant="body" level={3} color="default">
@@ -306,14 +306,41 @@ export default async function ProposalPage({
 
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 mb-8 mt-0 z-10">
         {proposal.status === "active" ? (
-          <VoteDrawerContentWrapper
-            proposal={proposal}
-            hasVoted={delegate?.voter_history?.some(
-              (vote) => vote.proposalId === proposal_id
-            )}
-            walletAddress={session?.user.walletAddress ?? ""}
-            revalidate={revalidate}
-          />
+          <div className="flex flex-col gap-4">
+            <Typography
+              variant="subtitle"
+              level={3}
+              style={{ lineHeight: "1.5" }}
+              className="text-center text-gray-500"
+            >
+              By voting, you agree with{" "}
+              <a
+                target="_blank"
+                className="text-gray-900"
+                style={{ textDecoration: "underline" }}
+                href="https://world.org/legal/user-terms-and-conditions"
+              >
+                Terms and Conditions
+              </a>{" "}
+              and{" "}
+              <a
+                target="_blank"
+                className="text-gray-900"
+                style={{ textDecoration: "underline" }}
+                href="https://world.org/legal/privacy-notice"
+              >
+                Terms of Services
+              </a>
+            </Typography>
+            <VoteDrawerContentWrapper
+              proposal={proposal}
+              hasVoted={delegate?.voter_history?.some(
+                (vote) => vote.proposalId === proposal_id
+              )}
+              walletAddress={session?.user.walletAddress ?? ""}
+              revalidate={revalidate}
+            />
+          </div>
         ) : (
           <Button className="w-full py-2" variant="primary" size="lg" disabled>
             Not open to voting

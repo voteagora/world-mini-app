@@ -2,6 +2,7 @@ import {
   FormattedVoteHistoryItem,
   Proposal,
   ProposalData,
+  ProposalType,
   VoteHistoryItem,
   VoteTotals,
 } from "@/utils/types";
@@ -145,8 +146,19 @@ export const formatVoteSupport = (
 
 export const getProposalStatus = (
   proposal: Proposal,
-  currentBlock: bigint
+  currentBlock: bigint,
+  proposalTypeInfo?: ProposalType
 ): "active" | "succeeded" | "failed" | "executed" | "pending" | "canceled" => {
+  const minParticipation = proposal.decoded_proposal_data?.[1]?.[0];
+  const votes = calculatePercentages(proposal.totals);
+  const totalVotes = Object.values(votes).reduce(
+    (sum, vote) => sum + Number(vote.amount),
+    0
+  );
+  const hasMetMinParticipation = minParticipation
+    ? totalVotes >= minParticipation
+    : true;
+
   if (!!proposal.cancel_event) {
     return "canceled";
   }
@@ -154,6 +166,26 @@ export const getProposalStatus = (
     return "pending";
   } else if (currentBlock <= proposal.vote_end) {
     return "active";
+  } else if (!hasMetMinParticipation) {
+    return "failed";
+  } else if (proposal.voting_module_name === "standard") {
+    const forVotes = votes["1"]?.amount;
+    const againstVotes = votes["0"]?.amount;
+    let thresholdVotes = BigInt(forVotes) + BigInt(againstVotes);
+    const voteThresholdPercent =
+      Number(thresholdVotes) > 0
+        ? (Number(forVotes) / Number(thresholdVotes)) * 100
+        : 0;
+    const apprThresholdPercent =
+      Number(proposalTypeInfo?.approval_threshold || 0) / 100;
+    const hasMetThreshold = Boolean(
+      voteThresholdPercent >= apprThresholdPercent
+    );
+    if (!hasMetThreshold || forVotes < againstVotes) {
+      return "failed";
+    } else {
+      return "succeeded";
+    }
   } else {
     return "succeeded";
   }
