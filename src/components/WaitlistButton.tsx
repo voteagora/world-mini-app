@@ -26,6 +26,8 @@ export const WaitlistButton = ({
   const onClick = async () => {
     setIsPending(true);
     try {
+      const lang = navigator?.language?.split("-")[0] || "en";
+      logger.info("User language", { lang });
       let address = walletAddress;
       if (!address) {
         const { nonce } = await getNewNonces();
