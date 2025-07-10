@@ -316,6 +316,7 @@ export default async function ProposalPage({
               By voting, you agree with{" "}
               <a
                 target="_blank"
+                rel="noreferrer"
                 className="text-gray-900"
                 style={{ textDecoration: "underline" }}
                 href="https://world.org/legal/user-terms-and-conditions"
@@ -325,6 +326,7 @@ export default async function ProposalPage({
               and{" "}
               <a
                 target="_blank"
+                rel="noreferrer"
                 className="text-gray-900"
                 style={{ textDecoration: "underline" }}
                 href="https://world.org/legal/privacy-notice"

@@ -171,7 +171,7 @@ export const getProposalStatus = (
   } else if (proposal.voting_module_name === "standard") {
     const forVotes = votes["1"]?.amount;
     const againstVotes = votes["0"]?.amount;
-    let thresholdVotes = BigInt(forVotes) + BigInt(againstVotes);
+    const thresholdVotes = BigInt(forVotes) + BigInt(againstVotes);
     const voteThresholdPercent =
       Number(thresholdVotes) > 0
         ? (Number(forVotes) / Number(thresholdVotes)) * 100
