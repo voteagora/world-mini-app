@@ -2,6 +2,9 @@ import { Page } from "@/components/PageLayout";
 import { Typography } from "@worldcoin/mini-apps-ui-kit-react";
 import Link from "next/link";
 
+export const dynamic = "force-static";
+export const revalidate = false;
+
 export default function About() {
   return (
     <>
@@ -37,12 +40,12 @@ export default function About() {
             World ID.
           </Typography>
           <Typography variant="body" level={2} color="default">
-            Leveraging first-class governance technology powered by Agora and
-            World ID, an anonymous proof-of-human mechanism, it ensures every
-            vote on World proposals is cast by a verified human, providing
+            Powered by World ID, an anonymous proof-of-human mechanism, and
+            first-class governance technology from Agora, the app ensures every
+            vote on World proposals is cast by a verified human, enabling
             sybil-resistant participation.
           </Typography>
-          <Link href="https://world.org/pt-br/worldvote">
+          <Link href="https://world.org/worldvote">
             <span className="underline font-bold">Learn more</span>
           </Link>
         </div>

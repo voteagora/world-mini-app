@@ -2,6 +2,7 @@ import {
   FormattedVoteHistoryItem,
   Proposal,
   ProposalData,
+  ProposalType,
   VoteHistoryItem,
   VoteTotals,
 } from "@/utils/types";
@@ -94,9 +95,19 @@ export const calculatePercentages = (
         totalVotes += numAmount;
       });
     } else {
-      const numAmount = parseInt(value as string) || 0;
-      voteAmounts[key] = numAmount;
-      totalVotes += numAmount;
+      if (typeof value === "object" && value !== null) {
+        let totalForOption = 0;
+        Object.entries(value).forEach(([, amount]) => {
+          const numAmount = parseInt(amount as string) || 0;
+          totalForOption += numAmount;
+        });
+        voteAmounts[key] = totalForOption;
+        totalVotes += totalForOption;
+      } else {
+        const numAmount = parseInt(value as string) || 0;
+        voteAmounts[key] = numAmount;
+        totalVotes += numAmount;
+      }
     }
   });
 
@@ -114,14 +125,13 @@ export const calculatePercentages = (
 
 export const formatVoteSupport = (
   support: number,
-  proposalType: string,
   params?: number[],
   optionKeys?: string[]
 ): { support: string; params: string[] } => {
   let formattedSupport: string;
   let formattedParams: string[] = [];
 
-  if (proposalType.includes("Approval") && params) {
+  if (params?.length) {
     formattedParams = params.map(
       (p: number) => optionKeys?.[p] || `Option ${p}`
     );
@@ -136,8 +146,19 @@ export const formatVoteSupport = (
 
 export const getProposalStatus = (
   proposal: Proposal,
-  currentBlock: bigint
+  currentBlock: bigint,
+  proposalTypeInfo?: ProposalType
 ): "active" | "succeeded" | "failed" | "executed" | "pending" | "canceled" => {
+  const minParticipation = proposal.decoded_proposal_data?.[1]?.[0];
+  const votes = calculatePercentages(proposal.totals);
+  const totalVotes = Object.values(votes).reduce(
+    (sum, vote) => sum + Number(vote.amount),
+    0
+  );
+  const hasMetMinParticipation = minParticipation
+    ? totalVotes >= minParticipation
+    : true;
+
   if (!!proposal.cancel_event) {
     return "canceled";
   }
@@ -145,6 +166,26 @@ export const getProposalStatus = (
     return "pending";
   } else if (currentBlock <= proposal.vote_end) {
     return "active";
+  } else if (!hasMetMinParticipation) {
+    return "failed";
+  } else if (proposal.voting_module_name === "standard") {
+    const forVotes = votes["1"]?.amount;
+    const againstVotes = votes["0"]?.amount;
+    const thresholdVotes = BigInt(forVotes) + BigInt(againstVotes);
+    const voteThresholdPercent =
+      Number(thresholdVotes) > 0
+        ? (Number(forVotes) / Number(thresholdVotes)) * 100
+        : 0;
+    const apprThresholdPercent =
+      Number(proposalTypeInfo?.approval_threshold || 0) / 100;
+    const hasMetThreshold = Boolean(
+      voteThresholdPercent >= apprThresholdPercent
+    );
+    if (!hasMetThreshold || forVotes < againstVotes) {
+      return "failed";
+    } else {
+      return "succeeded";
+    }
   } else {
     return "succeeded";
   }
@@ -153,11 +194,11 @@ export const getProposalStatus = (
 export const formatVoteHistoryItem = (
   vote: VoteHistoryItem,
   proposal: ProposalData | undefined,
-  currentBlock: bigint
+  currentBlock: bigint,
+  options: string[]
 ): FormattedVoteHistoryItem => {
   const proposalName = proposal
-    ? getTitleFromProposalDescription(proposal.description) ||
-      "Untitled Proposal"
+    ? proposal.title || "Untitled Proposal"
     : `Proposal ${vote.proposal_id}`;
 
   const blockNumber = BigInt(vote.bn);
@@ -171,14 +212,10 @@ export const formatVoteHistoryItem = (
   if (proposal) {
     const allVotes = calculatePercentages(proposal.totals);
 
-    if (vote.proposal_type?.name?.includes("Approval") && vote.params) {
+    if (vote.params?.length) {
       const selectedPercentages = vote.params.map((paramIndex: number) => {
-        const optionKeys = Object.keys(allVotes).filter((key) =>
-          isNaN(parseInt(key))
-        );
-        const optionKey = optionKeys[paramIndex];
-        return optionKey
-          ? parseFloat(allVotes[optionKey]?.percentage || "0")
+        return allVotes[paramIndex.toString()]
+          ? parseFloat(allVotes[paramIndex.toString()].percentage || "0")
           : 0;
       });
       const totalPercentage = selectedPercentages.reduce(
@@ -195,8 +232,8 @@ export const formatVoteHistoryItem = (
 
   const { support, params } = formatVoteSupport(
     vote.support,
-    vote.proposal_type?.name || "",
-    vote.params
+    vote.params,
+    options
   );
 
   return {
