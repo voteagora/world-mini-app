@@ -8,17 +8,14 @@ import {
 import { CheckCircleSolid } from "iconoir-react";
 import Link from "next/link";
 import { TruncatedText } from "@/components/TruncatedText";
-import { SeeAllDrawer } from "@/components/SeeAllDrawer";
-import { UserVoteItem } from "@/components/UserVoteItem";
 import { notFound } from "next/navigation";
 import { VoteDrawerContentWrapper } from "@/components/VoteDrawerContent";
 import { ArrowLeftIcon } from "@/components/icons/ArrowLeft";
-import {
-  getProposalFromDaoNode,
-  getVotesForDelegateFromDaoNode,
-} from "@/lib/dao-node/client";
+import { getProposalFromDaoNode } from "@/lib/dao-node/client";
 import { auth } from "@/auth";
 import { revalidateTag } from "next/cache";
+import { ProposalVotes, ProposalVotesDrawer } from "@/components/ProposalVotes";
+import { twMerge } from "tailwind-merge";
 
 export default async function ProposalPage({
   params,
@@ -28,9 +25,6 @@ export default async function ProposalPage({
   const { proposal_id } = await params;
   const proposal = await getProposalFromDaoNode(proposal_id);
   const session = await auth();
-  const delegate = await getVotesForDelegateFromDaoNode(
-    session?.user.walletAddress
-  );
   if (!proposal) {
     notFound();
   }
@@ -55,7 +49,12 @@ export default async function ProposalPage({
           }
         />
       </Page.Header>
-      <Page.Main className="flex flex-col items-start justify-start gap-4 mb-42 px-4">
+      <Page.Main
+        className={twMerge(
+          "flex flex-col items-start justify-start gap-4 px-4",
+          proposalStatus === "active" ? "mb-42" : "mb-28"
+        )}
+      >
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-2 text-gray-500">
             <Typography variant="body" level={3} color="default">
@@ -245,61 +244,18 @@ export default async function ProposalPage({
             >
               Votes
             </Typography>
-            {(proposal.userVotes?.length ?? 0) > 3 && (
-              <SeeAllDrawer
-                trigger={
-                  <button type="button">
-                    <Typography
-                      variant="subtitle"
-                      level={3}
-                      color="default"
-                      className="text-gray-400"
-                    >
-                      See all
-                    </Typography>
-                  </button>
-                }
-                title="Votes"
-                items={
-                  proposal.userVotes?.map((user) => (
-                    <UserVoteItem
-                      key={user.address}
-                      address={user.address}
-                      support={user.support}
-                      params={user.params}
-                      proposalType={proposalType}
-                    />
-                  )) ?? []
-                }
-                emptyMessage="No user votes yet"
-              />
-            )}
+            <ProposalVotesDrawer
+              proposalId={proposal.id}
+              votes={proposal.userVotes}
+              proposalType={proposalType}
+            />
           </div>
           <div className="flex flex-col gap-4 mt-4">
-            {proposal.userVotes?.length ? (
-              proposal.userVotes
-                .slice(0, 3)
-                .map((user) => (
-                  <UserVoteItem
-                    key={user.address}
-                    address={user.address}
-                    support={user.support}
-                    params={user.params}
-                    proposalType={proposalType}
-                  />
-                ))
-            ) : (
-              <div className="flex items-center justify-center w-full">
-                <Typography
-                  variant="subtitle"
-                  level={3}
-                  color="default"
-                  className="text-gray-500 italic"
-                >
-                  No user votes yet
-                </Typography>
-              </div>
-            )}
+            <ProposalVotes
+              proposalId={proposal.id}
+              votes={proposal.userVotes}
+              proposalType={proposalType}
+            />
           </div>
         </div>
       </Page.Main>
@@ -336,9 +292,6 @@ export default async function ProposalPage({
             </Typography>
             <VoteDrawerContentWrapper
               proposal={proposal}
-              hasVoted={delegate?.voter_history?.some(
-                (vote) => vote.proposalId === proposal_id
-              )}
               walletAddress={session?.user.walletAddress ?? ""}
               revalidate={revalidate}
             />

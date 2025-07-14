@@ -2,6 +2,9 @@ import { Page } from "@/components/PageLayout";
 import { Typography } from "@worldcoin/mini-apps-ui-kit-react";
 import Link from "next/link";
 
+export const dynamic = "force-static";
+export const revalidate = false;
+
 export default function About() {
   return (
     <>

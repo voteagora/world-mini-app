@@ -2,7 +2,6 @@
 "use client";
 
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import Confetti from "react-confetti";
 import {
   Typography,
   Button,
@@ -30,6 +29,9 @@ import {
 import { useWaitForTransactionReceipt } from "@worldcoin/minikit-react";
 import { worldchain } from "viem/chains";
 import { logger } from "@/lib/logger";
+import { useQuery } from "@tanstack/react-query";
+import { getVotesForDelegateFromDaoNode } from "@/lib/dao-node/client";
+import { useProposalVotesStore } from "@/lib/stores/proposalVotes";
 
 const governorAbi = parseAbi([
   "function castVoteWithReasonAndParams(uint256 proposalId, uint8 support, string reason, bytes params) external returns (uint256)",
@@ -58,6 +60,7 @@ export function VoteDrawerContent({
   const [isVerifying, setIsVerifying] = useState(false);
   const [voteError, setVoteError] = useState<string | null>(null);
   const [txHash, setTxHash] = useState<string | null>(null);
+  const { addVote } = useProposalVotesStore();
 
   const client = createPublicClient({
     chain: worldchain,
@@ -90,6 +93,25 @@ export function VoteDrawerContent({
       const signResult = await submitVoteWithProof(result);
 
       if (signResult.finalPayload.status === "success") {
+        const support =
+          getSupportValue() === 1
+            ? "For"
+            : getSupportValue() === 0
+            ? "Against"
+            : "Abstain";
+
+        let params: string[] | undefined;
+        if (proposalType === "approval" && selectedOptions.length > 0) {
+          params = selectedOptions;
+        }
+
+        addVote(proposal.id, {
+          address: walletAddress,
+          support,
+          reason,
+          params,
+        });
+
         setVoteState("success");
         revalidate();
       } else {
@@ -255,7 +277,6 @@ export function VoteDrawerContent({
         setVoteState("failure");
       }
     } else {
-      setVoteState("success");
       revalidate();
     }
   };
@@ -289,7 +310,6 @@ export function VoteDrawerContent({
   if (voteState === "success") {
     return (
       <>
-        <Confetti />
         <div className="flex flex-col gap-2 items-center justify-center h-full pt-0 mt-0">
           <CircularIcon size="xl" className="bg-green-600 mb-6">
             <Check className="text-white" />
@@ -441,27 +461,39 @@ export function VoteDrawerContent({
 
 export const VoteDrawerContentWrapper = ({
   proposal,
-  hasVoted = false,
   walletAddress,
   revalidate,
 }: {
   proposal: ProposalData;
-  hasVoted?: boolean;
   walletAddress: string;
   revalidate: () => void;
 }) => {
+  const { data: delegate, isLoading } = useQuery({
+    queryKey: ["votes", walletAddress],
+    queryFn: () => getVotesForDelegateFromDaoNode(walletAddress),
+    enabled: !!walletAddress,
+  });
+  const votes = delegate?.voter_history;
+  const hasVoted = votes?.some((vote) => vote.proposalId === proposal.id);
   const [voteState, setVoteState] = useState<string | null>(
     hasVoted ? "success" : null
   );
 
-  const isDisabled = proposal.status !== "active" || voteState === "success";
+  const isDisabled =
+    proposal.status !== "active" || voteState === "success" || isLoading;
 
   return (
     <Drawer>
       <DrawerTrigger disabled={isDisabled} asChild>
         <Button variant="primary" size="lg" className="w-full">
           <div className="flex items-center py-4">
-            {voteState === "success" ? "You've already voted" : "Vote"}
+            {isLoading ? (
+              <div className="w-8 h-8 border-3 border-gray-300 border-t-gray-900 rounded-full animate-spin"></div>
+            ) : voteState === "success" ? (
+              "You've already voted"
+            ) : (
+              "Vote"
+            )}
           </div>
         </Button>
       </DrawerTrigger>

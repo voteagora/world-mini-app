@@ -15,6 +15,7 @@ interface SeeAllDrawerProps {
   items: React.ReactNode[];
   emptyMessage?: string;
   emptyComponent?: React.ReactNode;
+  isLoading?: boolean;
 }
 
 export function SeeAllDrawer({
@@ -23,6 +24,7 @@ export function SeeAllDrawer({
   items,
   emptyMessage = "No items to display",
   emptyComponent,
+  isLoading,
 }: SeeAllDrawerProps) {
   return (
     <Drawer>
@@ -37,7 +39,11 @@ export function SeeAllDrawer({
         </Page.Header>
         <Page.Main className="flex flex-col justify-between pt-0 mb-4">
           <div className="flex flex-col gap-8">
-            {items.length ? (
+            {isLoading ? (
+              <div className="flex items-center justify-center w-full">
+                <div className="w-8 h-8 border-3 border-gray-300 border-t-gray-900 rounded-full animate-spin"></div>
+              </div>
+            ) : items.length ? (
               items
             ) : emptyComponent ? (
               emptyComponent

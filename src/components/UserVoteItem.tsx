@@ -1,7 +1,10 @@
+"use client";
+
 import { Marble, Typography } from "@worldcoin/mini-apps-ui-kit-react";
 import Link from "next/link";
 import { twMerge } from "tailwind-merge";
 import { getUserByAddress } from "@/lib/server-utils";
+import { useQuery } from "@tanstack/react-query";
 
 interface UserVoteItemProps {
   address: string;
@@ -10,13 +13,17 @@ interface UserVoteItemProps {
   proposalType: string;
 }
 
-export async function UserVoteItem({
+export function UserVoteItem({
   address,
   support,
   params,
   proposalType,
 }: UserVoteItemProps) {
-  const user = await getUserByAddress(address);
+  const { data: user } = useQuery({
+    queryKey: ["user", address],
+    queryFn: () => getUserByAddress(address),
+    enabled: !!address,
+  });
   if (!user || !user.username) return null;
 
   return (
